@@ -1,0 +1,32 @@
+---------------------------------------------------------------------------------------------------
+Version: 1.0.5
+Date: 2024.11.30
+  Changes:
+    - Removed 1.0 requirement for optional mods. (Some had version 0.x.x)
+---------------------------------------------------------------------------------------------------
+Version: 1.0.4
+Date: 2024.11.30
+  Changes:
+    - Added compatibility with multiple new planet mods. (See optional dependencies)
+    - Massively reduced file size, as planet graphics are now retrieved from the respective mod/base game.
+---------------------------------------------------------------------------------------------------
+Version: 1.0.3
+Date: 2024.11.30
+  Changes:
+    - Fixed a migration issue in the previous version. (Hopefully)
+---------------------------------------------------------------------------------------------------
+Version: 1.0.2
+Date: 2024.11.30
+  Changes:
+    - Planets now move and shrink/grow when arriving and departing orbits.
+    - Planets are slightly larger now. (Earlier it got really bad with pixels. That's fixed now.)
+---------------------------------------------------------------------------------------------------
+Version: 1.0.1
+Date: 2024.11.30
+  Changes:
+    - Planets are significantly less pixelated.
+---------------------------------------------------------------------------------------------------
+Version: 1.0.0
+Date: 2024.11.30
+  Changes:
+    - Released
