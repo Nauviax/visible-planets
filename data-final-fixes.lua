@@ -25,12 +25,12 @@ end
 
 local planets = data.raw["planet"]
 for k, planet in pairs(planets) do
-    log("Adding visible-planets for planet " .. name .. "")
+    log("Adding visible-planets for planet " .. planet.name .. "")
     create_planet_sprite_prototype(planet)
 
 end
 local planets = data.raw["space-location"]
 for k, planet in pairs(planets) do
-    log("Adding visible-planets for planet " .. name .. "")
+    log("Adding visible-planets for planet " .. planet.name .. "")
     create_planet_sprite_prototype(planet)
 end
