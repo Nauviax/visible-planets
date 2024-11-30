@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.7
+Date: 2024.12.01
+  Changes:
+    - Planet icons now fetched automatically, so most planet mods should be supported now.
+    - Due to new format, old planet renders are gone. Just toggle platform paused state to get a new one.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.6
 Date: 2024.12.01
   Changes:
