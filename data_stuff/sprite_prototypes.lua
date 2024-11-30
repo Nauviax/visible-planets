@@ -11,7 +11,7 @@ local function create_planet_sprite_prototype(name, filename, layers)
 	if filename then
 		sprite_prototype.filename = filename
 		sprite_prototype.size = 512
-	else
+	elseif layers then
 		sprite_prototype.layers = {}
 		for _, icon in pairs(layers) do
 			table.insert(sprite_prototype.layers, {
@@ -24,9 +24,10 @@ local function create_planet_sprite_prototype(name, filename, layers)
 				flags = { "linear-minification", "linear-magnification" },
 			})
 		end
+	else
+		return
 	end
 	data:extend { sprite_prototype }
-	return sprite_prototype
 end
 
 for _, planet in pairs(data.raw.planet) do
