@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.6
+Date: 2024.12.01
+  Changes:
+    - Fixed asteroid shadows appearing on planet render. (Thanks Thaui!)
+    - Quick shuffle of mod files internally, shouldn't affect anything.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.5
 Date: 2024.11.30
   Changes:
