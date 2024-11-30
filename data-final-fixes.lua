@@ -6,6 +6,7 @@ require("data_stuff/remove_asteroid_shadow.lua")
 local function create_planet_sprite_prototype(planet)
 
     local name = "visible-planets-" .. planet.name
+    local size = planet.starmap_icon_size or planet.icon_size
     -- existing
     if data.raw["sprite"][name] then
         return
@@ -13,7 +14,10 @@ local function create_planet_sprite_prototype(planet)
     if planet.name == "space-location-unknown" then
         return
     end
-    
+    if not planet.size then
+        return
+    end
+
     local sprite_prototype = {
         type = "sprite",
         name = name,
