@@ -10,6 +10,10 @@ local function create_planet_sprite_prototype(planet)
     if data.raw["sprite"][name] then
         return
     end
+    if planet.name == "space-location-unknown" then
+        return
+    end
+    
     local sprite_prototype = {
         type = "sprite",
         name = name,
