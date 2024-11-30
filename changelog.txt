@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.8
+Date: 2024.12.01
+  Changes:
+    - Large planet sprites now render smaller, so that they aren't massive compared to base game planets.
+    - (Small sprites are unaffected currently, and will still appear smaller than base planets.)
+    - Removed .git files from mod upload. Sorry about that.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.7
 Date: 2024.12.01
   Changes:

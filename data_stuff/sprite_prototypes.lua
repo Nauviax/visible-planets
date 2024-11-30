@@ -1,10 +1,14 @@
+-- Constants
+local sprite_goal_size = 512 -- Sprites larger than this will be scaled down to this size.
+
 -- Create SpritePrototype for each planet
 local function create_planet_sprite_prototype(planet)
     if planet.name == "space-location-unknown" then
         log("Skipping visible-planets for planet space-location-unknown")
         return
     end
-    if not (planet.starmap_icon_size or planet.icon_size) then
+    local size = planet.starmap_icon_size or planet.icon_size
+    if not size then
         log("Skipping visible-planets for planet " .. planet.name .. " because it has no sprite. (starmap_icon_size or icon_size missing)")
         return
     end
@@ -14,8 +18,8 @@ local function create_planet_sprite_prototype(planet)
         type = "sprite",
         name = name,
         filename = planet.starmap_icon or planet.icon,
-        size = planet.starmap_icon_size or planet.icon_size,
-        scale = 1,
+        size = size,
+        scale = math.min(1, sprite_goal_size/size), -- Scale down large sprites. Shouldn't reduce resolution.
         mipmap_count = 1,
         flags = { "linear-minification", "linear-magnification" }, -- Prevent pixels showing.
         -- Sprite priority?
