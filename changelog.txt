@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.9
+Date: 2024.12.01
+  Changes:
+    - Much nicer internal logic for planet animation. No change to functionality.
+    - Added config options for planet position, spawn position, size and animation duration. More options coming soon. (Like non-linear animation)
+    - Changed some default values for planet renders. Overall, default animation is slower, and planet is smaller than previous versions to help hide pixelation.
+    - Fixed an issue where planet renders could become stuck if arriving at a planet within a few seconds of departing from the same planet.
+    - Locale added, just settings for now.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.8
 Date: 2024.12.01
   Changes:

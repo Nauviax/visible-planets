@@ -1,6 +1,6 @@
 {
   "name": "visible-planets",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "title": "Visible Planets in Space",
   "author": "Nauviax",
   "description": "Render the planet a platform is orbiting in the background.",
