@@ -54,4 +54,11 @@ data:extend({
         default_value = true,
         order = "a"
     },
+    {
+        type = "bool-setting",
+        name = "visible-planets-enable-hd1",
+        setting_type = "startup",
+        default_value = false,
+        order = "b"
+    },
 })

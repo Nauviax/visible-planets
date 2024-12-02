@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.1
+Date: 2024.12.02
+  Changes:
+    - Added hi-res textures for Nauvis and Gleba. Thanks to artist "Valerian".
+    - Added placeholder hi-res sprites for Aquilo, Fulgora, and Vulcanus. They are scaled up via AI tools.
+---------------------------------------------------------------------------------------------------
 Version: 1.1.0
 Date: 2024.12.02
   Changes:
