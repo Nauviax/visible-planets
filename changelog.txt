@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.2
+Date: 2024.12.03
+  Changes:
+    - Added ability to specify a planet angle, or optionally allow planet to rotate over time.
+    - Added option to delete all existing planet renders, so that you can generate new ones for stationary platforms.
+---------------------------------------------------------------------------------------------------
 Version: 1.1.1
 Date: 2024.12.03
   Changes:
