@@ -79,13 +79,36 @@ script.on_event(defines.events.on_tick, function(event)
 	end
 
 	for index, sprite in pairs(storage.visible_planets_renders_shrink) do
-		local scale = sprite.x_scale
-		if scale > 0 then
-			sprite.x_scale = scale - planet_scale_speed
-			sprite.y_scale = scale - planet_scale_speed
-			sprite.target = {sprite.target.position.x, sprite.target.position.y + planet_move_speed}
-		else
-			sprite.destroy()
+		if not sprite.valid then -- Should solve an issue that someone had. Wasn't able to reproduce, but this should be good.
+			storage.visible_planets_renders_shrink[index] = nil
+		else -- I wish lua had a continue statement. goto would work, but feels so wrong.
+			local scale = sprite.x_scale
+			if scale > 0 then
+				sprite.x_scale = scale - planet_scale_speed
+				sprite.y_scale = scale - planet_scale_speed
+				sprite.target = {sprite.target.position.x, sprite.target.position.y + planet_move_speed}
+			else
+				sprite.destroy()
+				storage.visible_planets_renders_shrink[index] = nil
+			end
+		end
+	end
+end)
+
+-- AFTER a surface is deleted, check if any planet renders have become invalid. If so, remove them.
+script.on_event(defines.events.on_surface_deleted, function(event)
+	for index, sprite in pairs(storage.visible_planets_renders_still) do
+		if not sprite.valid then
+			storage.visible_planets_renders_still[index] = nil
+		end
+	end
+	for index, sprite in pairs(storage.visible_planets_renders_grow) do
+		if not sprite.valid then
+			storage.visible_planets_renders_grow[index] = nil
+		end
+	end
+	for index, sprite in pairs(storage.visible_planets_renders_shrink) do
+		if not sprite.valid then
 			storage.visible_planets_renders_shrink[index] = nil
 		end
 	end

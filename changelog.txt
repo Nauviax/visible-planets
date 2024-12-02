@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.10
+Date: 2024.12.01
+  Changes:
+    - Planet renders are now cleaned up when a platform is deleted.
+    - Hopefully fixed a crash where a shrinking planet render becomes invalid. (Or is invalid and starts shrinking, couldn't reproduce.)
+---------------------------------------------------------------------------------------------------
 Version: 1.0.9
 Date: 2024.12.01
   Changes:
