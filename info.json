@@ -1,9 +1,9 @@
 {
   "name": "visible-planets",
-  "version": "1.0.10",
+  "version": "1.1.0",
   "title": "Visible Planets in Space",
   "author": "Nauviax",
-  "description": "Render the planet a platform is orbiting in the background.",
+  "description": "Render the local planet behind platforms when in orbit. Now with parallax and automatic mod support!",
   "factorio_version": "2.0",
   "dependencies": [
     "base >= 2.0",

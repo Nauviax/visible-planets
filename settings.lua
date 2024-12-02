@@ -1,4 +1,5 @@
 data:extend({
+    -- Runtime settings
     {
         type = "double-setting",
         name = "visible-planets-planet-scale",
@@ -36,5 +37,21 @@ data:extend({
         default_value = 180,
         minimum_value = 1, -- Avoid division by zero
         order = "e"
-    }
+    },
+    {
+        type = "double-setting",
+        name = "visible-planets-parallax-factor",
+        setting_type = "runtime-global",
+        default_value = 2,
+        minimum_value = 0.1,
+        order = "f"
+    },
+    -- Startup settings
+    {
+        type = "bool-setting",
+        name = "visible-planets-enable-parallax",
+        setting_type = "startup",
+        default_value = true,
+        order = "a"
+    },
 })

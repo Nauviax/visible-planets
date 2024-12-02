@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.0
+Date: 2024.12.02
+  Changes:
+    - Added planet parallax effect. (Can be disabled or customized in settings)
+    - (Note that this is a WIP implementation. Parallax in multiplayer is functional but not great; See known issues on the mod page for more info.)
+---------------------------------------------------------------------------------------------------
 Version: 1.0.10
 Date: 2024.12.01
   Changes:
