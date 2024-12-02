@@ -39,19 +39,19 @@ data:extend({
         order = "e"
     },
     {
+        type = "bool-setting",
+        name = "visible-planets-enable-parallax",
+        setting_type = "runtime-global",
+        default_value = true,
+        order = "f"
+    },
+    {
         type = "double-setting",
         name = "visible-planets-parallax-factor",
         setting_type = "runtime-global",
         default_value = 2,
         minimum_value = 0.1,
-        order = "f"
+        order = "g"
     },
     -- Startup settings
-    {
-        type = "bool-setting",
-        name = "visible-planets-enable-parallax",
-        setting_type = "startup",
-        default_value = true,
-        order = "a"
-    },
 })

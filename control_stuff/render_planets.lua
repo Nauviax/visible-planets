@@ -11,7 +11,7 @@ local planet_move_speed = PLANET_INIT_DIST / PLANET_ANIM_DUR
 local planet_scale_speed = PLANET_SCALE / PLANET_ANIM_DUR
 
 -- Parallax configs
-local PARALLAX_ENABLED = settings.startup["visible-planets-enable-parallax"].value
+local PARALLAX_ENABLED = settings.global["visible-planets-enable-parallax"].value
 local PARALLAX_FACTOR = settings.global["visible-planets-parallax-factor"].value
 
 -- on_runtime_mod_setting_changed, update constants. (Yes this technically gets called for each setting changed, but they all need updating anyway.)
@@ -24,7 +24,7 @@ script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
 	planet_initial_position = {PLANET_POS_X, PLANET_POS_Y - PLANET_INIT_DIST}
 	planet_move_speed = PLANET_INIT_DIST / PLANET_ANIM_DUR
 	planet_scale_speed = PLANET_SCALE / PLANET_ANIM_DUR
-
+	PARALLAX_ENABLED = settings.global["visible-planets-enable-parallax"].value -- If disabled midgame, only existing planets will be left offset. New ones should be fine.
 	PARALLAX_FACTOR = settings.global["visible-planets-parallax-factor"].value
 end)
 
