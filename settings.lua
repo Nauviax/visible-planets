@@ -31,9 +31,9 @@ data:extend({
     },
     {
         type = "int-setting",
-        name = "visible-planets-planet-init-dist",
+        name = "visible-planets-planet-init-dist", -- Could use a rename, but eh migrations are annoying.
         setting_type = "runtime-global",
-        default_value = 75,
+        default_value = 200,
         minimum_value = 0, -- Always in front of platform, so players don't get confused with whether or not to use a negative number here.
         order = "b[sprite]-d"
     },
@@ -65,7 +65,7 @@ data:extend({
         type = "double-setting",
         name = "visible-planets-parallax-factor",
         setting_type = "runtime-global",
-        default_value = 2,
+        default_value = 3,
         minimum_value = 0.1,
         order = "c[parallax]-b"
     },

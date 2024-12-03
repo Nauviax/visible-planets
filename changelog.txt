@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.0
+Date: 2024.12.03
+  Changes:
+    - Planet arrival/departure now eases in and out, and is overall much nicer.
+    - Initial distance and parallax factor default values adjusted.
+    - Internal changes to render logic, should make implementing specific future features easier, and *might* even be more performant.
+    - Host now has priority when parallax has multiple players looking at the same planet.
+    - Multiple viewers no longer cause planets to rotate faster.
+---------------------------------------------------------------------------------------------------
 Version: 1.1.3
 Date: 2024.12.03
   Changes:
