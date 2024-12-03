@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.3
+Date: 2024.12.03
+  Changes:
+    - When adding this mod to an existing save, or when regen-renders is ticked, the mod will generate planet renders for all platforms that need them. (No more manual toggling of paused state!)
+    - Performance and code size improvements for planet rotation, now only rotating when players are looking. (Side effect: Planets rotate faster when multiple players are looking)
+    - Default rotation speed reduced slightly. You can change it back if wanted ofc.
+    - Removed optional dependencies for planet mods. (They are all supported by default now, so no need to specify them)
+---------------------------------------------------------------------------------------------------
 Version: 1.1.2
 Date: 2024.12.03
   Changes:

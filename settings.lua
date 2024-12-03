@@ -80,7 +80,7 @@ data:extend({
         type = "double-setting",
         name = "visible-planets-rotation-speed",
         setting_type = "runtime-global",
-        default_value = 0.02,
+        default_value = 0.01,
         minimum_value = -180,
         maximum_value = 180,
         order = "d[rotation]-b"

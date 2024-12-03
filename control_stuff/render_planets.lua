@@ -19,6 +19,9 @@ local PARALLAX_FACTOR = settings.global["visible-planets-parallax-factor"].value
 local ROTATION_ENABLED = settings.global["visible-planets-enable-rotation"].value
 local ROTATION_SPEED = settings.global["visible-planets-rotation-speed"].value / 360.0 -- % rotation per tick. Value is degrees.
 
+-- Final few calculated constants
+local animation_feature_enabled = PARALLAX_ENABLED or ROTATION_ENABLED -- Whether to run the on_tick per player function.
+
 -- on_runtime_mod_setting_changed, update constants. (Yes this technically gets called for each setting changed, but they all need updating anyway.)
 script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
 	PLANET_POS_X = settings.global["visible-planets-planet-pos-x"].value
@@ -34,7 +37,8 @@ script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
 	PARALLAX_FACTOR = settings.global["visible-planets-parallax-factor"].value
 	ROTATION_ENABLED = settings.global["visible-planets-enable-rotation"].value
 	ROTATION_SPEED = settings.global["visible-planets-rotation-speed"].value / 360.0
-	-- If regen renders is set true, then clear all planets and set setting to false.
+	animation_feature_enabled = PARALLAX_ENABLED or ROTATION_ENABLED
+	-- If regen renders is set true, then clear and regen all planet renders, and set setting to false.
 	if settings.global["visible-planets-regen-renders"].value then
 		for _, sprite in pairs(storage.visible_planets_renders_still) do sprite.destroy() end
 		for _, sprite in pairs(storage.visible_planets_renders_grow) do sprite.destroy() end
@@ -42,6 +46,11 @@ script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
 		storage.visible_planets_renders_still = {}
 		storage.visible_planets_renders_grow = {}
 		storage.visible_planets_renders_shrink = {}
+		for _, surface in pairs(game.surfaces) do
+			if surface.platform then
+				render_planet_on_platform(surface.platform)
+			end
+		end
 		settings.global["visible-planets-regen-renders"] = {value = false}
 	end
 end)
@@ -53,9 +62,8 @@ script.on_init(function()
 	storage.visible_planets_renders_shrink = {} -- Planets put here will be shrunk then removed.
 end)
 
--- When a platform changes state, render or derender the planet in the background.
-script.on_event(defines.events.on_space_platform_changed_state, function(event)
-	local platform = event.platform
+-- Function to render a planet on a platform. Used for the initial render of all platforms. (Also called from migrations.)
+function render_planet_on_platform(platform)
 	if platform.surface then -- Check platform exists first
 		local location = platform.space_location -- Can be nil
 		local render_exists = storage.visible_planets_renders_still[platform.index] ~= nil or storage.visible_planets_renders_grow[platform.index] ~= nil
@@ -87,6 +95,11 @@ script.on_event(defines.events.on_space_platform_changed_state, function(event)
 			end
 		end
 	end
+end
+
+-- When a platform changes state, render or derender the planet in the background.
+script.on_event(defines.events.on_space_platform_changed_state, function(event)
+	render_planet_on_platform(event.platform)
 end)
 
 -- Every tick, 
@@ -124,47 +137,30 @@ script.on_event(defines.events.on_tick, function(event)
 		end
 	end
 
-	-- on_tick parallax. Weird in multiplayer, but that's why it's disableable.
-	if PARALLAX_ENABLED then
+	-- on_tick parallax and rotation. Only runs if at least one feature is enabled.
+	if animation_feature_enabled then
 		for _, player in pairs(game.players) do
 			if player.surface.platform then
 				local p_index = player.surface.platform.index
 				-- Get the render of the planet that is currently visible. Will only get one planet; Shrinking planets will be ignored if one is already growing.
 				local planet_render = storage.visible_planets_renders_still[p_index] or storage.visible_planets_renders_grow[p_index] or storage.visible_planets_renders_shrink[p_index]
 				if planet_render then
-					local player_position = player.position
-					local planet_position = planet_render.target.position
-					local x_offset = (player_position.x - planet_position.x) / PARALLAX_FACTOR
-					local y_offset = (player_position.y - planet_position.y) / PARALLAX_FACTOR
-					planet_render.oriented_offset = {x_offset, y_offset} -- Will not affect literal position.
+					if PARALLAX_ENABLED then -- Will end up correct only for last player watching a given planet.
+						local player_position = player.position
+						local planet_position = planet_render.target.position
+						local x_offset = (player_position.x - planet_position.x) / PARALLAX_FACTOR
+						local y_offset = (player_position.y - planet_position.y) / PARALLAX_FACTOR
+						planet_render.oriented_offset = {x_offset, y_offset} -- Will not affect literal position.
+					end
+					if ROTATION_ENABLED then -- Will double rotate if two players watching same planet.
+						local new_ang = planet_render.orientation + ROTATION_SPEED
+						if new_ang >= 1 then
+							new_ang = new_ang - 1
+						end
+						planet_render.orientation = new_ang
+					end
 				end
 			end
-		end
-	end
-
-	-- on_tick rotation. !!! Look into only rotating visible planets, not all planets. Is performance better?
-	-- Tempted to just rotate planets players are looking at, and if two look at it then it doubles speed anyway.
-	if ROTATION_ENABLED then
-		for _, sprite in pairs(storage.visible_planets_renders_still) do
-			local new_ang = sprite.orientation + ROTATION_SPEED
-			if new_ang >= 1 then
-				new_ang = new_ang - 1
-			end
-			sprite.orientation = new_ang
-		end
-		for _, sprite in pairs(storage.visible_planets_renders_grow) do
-			local new_ang = sprite.orientation + ROTATION_SPEED
-			if new_ang >= 1 then
-				new_ang = new_ang - 1
-			end
-			sprite.orientation = new_ang
-		end
-		for _, sprite in pairs(storage.visible_planets_renders_shrink) do
-			local new_ang = sprite.orientation + ROTATION_SPEED
-			if new_ang >= 1 then
-				new_ang = new_ang - 1
-			end
-			sprite.orientation = new_ang
 		end
 	end
 end)
