@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.4
+Date: 2024.12.04
+  Changes:
+    - Fix for planets jumping to new position when leaving orbits during arrival animation.
+    - Default x position moved slightly further left to help hide known shadow issue when parallax is enabled. (Platform shadows show on planet on right side)
+    - Default animation duration increased to 5s, as a few people have mentioned the default is a little fast. (Feel free to make it even longer of course)
+---------------------------------------------------------------------------------------------------
 Version: 1.2.3
 Date: 2024.12.04
   Changes:

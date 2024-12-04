@@ -2,7 +2,8 @@
 local PLANET_POS_X = settings.global["visible-planets-planet-pos-x"].value + 0 -- +0 just to tell lua it's a number.
 local PLANET_POS_Y = settings.global["visible-planets-planet-pos-y"].value + 0
 local PLANET_ARRIVE_DIST = settings.global["visible-planets-planet-init-dist"].value
-local PLANET_DEPART_DIST = PLANET_ARRIVE_DIST * 2 -- Departing planets will go twice as fast as arriving planets.
+local PLANET_DEPART_DIST_MULT = 2 -- Departing planets will go twice as fast as arriving planets. (Used in more locations than just next line!)
+local PLANET_DEPART_DIST = PLANET_ARRIVE_DIST * PLANET_DEPART_DIST_MULT -- Departing planets will go twice as fast as arriving planets.
 local PLANET_SCALE = settings.global["visible-planets-planet-scale"].value
 local PLANET_ANIM_DUR = settings.global["visible-planets-planet-anim-dur"].value -- Ticks for growing and shrinking
 local PLANET_ANGLE = settings.global["visible-planets-planet-angle"].value / 360.0 -- Given in degrees, requires 0-1.
@@ -65,7 +66,15 @@ function render_planet_on_platform(platform)
 				if storage.visible_planets_renders_shrink[platform.index] then
 					storage.visible_planets_renders_shrink[platform.index].obj.destroy()
 				end
-				storage.visible_planets_renders_shrink[platform.index] = storage.visible_planets_renders_still[platform.index] or storage.visible_planets_renders_grow[platform.index]
+				if storage.visible_planets_renders_still[platform.index] then
+					-- depart_y_offset is already correct. (0)
+					storage.visible_planets_renders_shrink[platform.index] = storage.visible_planets_renders_still[platform.index]
+				else -- Planet is growing, needs to be shrunk, but starting at PLANET_POS_Y will cause a jump.
+					local render = storage.visible_planets_renders_grow[platform.index]
+					render.depart_y_offset = (1 + PLANET_DEPART_DIST_MULT) * (render.obj.target.position.y - PLANET_POS_Y) -- Offset departure animation to remove jump. Should be negative.
+					storage.visible_planets_renders_shrink[platform.index] = render
+				end
+				-- Remove from other lists. Can delete two planets technically.
 				storage.visible_planets_renders_still[platform.index] = nil
 				storage.visible_planets_renders_grow[platform.index] = nil
 			end
@@ -86,6 +95,7 @@ function render_planet_on_platform(platform)
 				storage.visible_planets_renders_grow[platform.index] = {
 					obj = sprite, -- The LuaRenderObject
 					animation_progress = 0, -- 0-1, used for arrival and departure animations.
+					depart_y_offset = 0, -- Used for departure animation, may be updated before departure.
 					player = nil, -- The player watching this planet. (Used for parallax and rotation.)
 				}
 				update_render_table_players() -- Check if a player is watching this planet. (Also updates other renders.)
@@ -176,7 +186,7 @@ script.on_event(defines.events.on_tick, function(event)
 				local scale = PLANET_SCALE * eased
 				render.obj.x_scale = scale
 				render.obj.y_scale = scale
-				render.obj.target = {x = PLANET_POS_X, y = PLANET_POS_Y + (1 - eased) * PLANET_DEPART_DIST}
+				render.obj.target = {x = PLANET_POS_X, y = PLANET_POS_Y + (1 - eased) * PLANET_DEPART_DIST + render.depart_y_offset} -- Offset often 0.
 				fancy_animations(render) -- Animate fancy
 				render.animation_progress = render.animation_progress - planet_progress_per_tick
 			else

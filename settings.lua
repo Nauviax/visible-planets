@@ -19,7 +19,7 @@ data:extend({
         type = "int-setting",
         name = "visible-planets-planet-pos-x",
         setting_type = "runtime-global",
-        default_value = -50,
+        default_value = -75,
         order = "b[sprite]-b"
     },
     {
@@ -41,7 +41,7 @@ data:extend({
         type = "int-setting",
         name = "visible-planets-planet-anim-dur",
         setting_type = "runtime-global",
-        default_value = 180,
+        default_value = 300,
         minimum_value = 1, -- Avoid division by zero
         order = "b[sprite]-e"
     },
