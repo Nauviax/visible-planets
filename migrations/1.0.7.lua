@@ -9,7 +9,7 @@ end
 local function destroy_sprites(sprite_table)
 	if sprite_table == nil then return end
     for _, sprite in pairs(sprite_table) do
-        sprite.destroy()
+        if sprite.valid then sprite.destroy() end
     end
 end
 
