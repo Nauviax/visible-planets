@@ -2,6 +2,6 @@
 -- Generates new planets for all platforms that need one.
 for _, surface in pairs(game.surfaces) do
 	if surface.platform then
-		render_planet_on_platform(surface.platform)
+		vp_render_planet_on_platform(surface.platform)
 	end
 end

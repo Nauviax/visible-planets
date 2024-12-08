@@ -1,13 +1,15 @@
 -- Configurable constants for planet grow/shrink animations
-local PLANET_POS_X = settings.global["visible-planets-planet-pos-x"].value + 0 -- +0 just to tell lua it's a number.
+local PLANET_POS_X = settings.global["visible-planets-planet-pos-x"].value + 0 -- +0 just to tell lua it's a number. Done a few times here.
 local PLANET_POS_Y = settings.global["visible-planets-planet-pos-y"].value + 0
 local PLANET_ARRIVE_DIST = settings.global["visible-planets-planet-init-dist"].value
 local PLANET_DEPART_DIST_MULT = 2 -- Departing planets will go twice as fast as arriving planets. (Used in more locations than just next line!)
 local PLANET_DEPART_DIST = PLANET_ARRIVE_DIST * PLANET_DEPART_DIST_MULT -- Departing planets will go twice as fast as arriving planets.
 local PLANET_SCALE = settings.global["visible-planets-planet-scale"].value
+local PLANET_INIT_SCALE = math.min(settings.global["visible-planets-planet-init-scale"].value + 0, PLANET_SCALE - 0.01) -- Clamped to just under planet-scale's value.
 local PLANET_ANIM_DUR = settings.global["visible-planets-planet-anim-dur"].value -- Ticks for growing and shrinking
 local PLANET_ANGLE = settings.global["visible-planets-planet-angle"].value / 360.0 -- Given in degrees, requires 0-1.
 local planet_progress_per_tick = 1.0 / PLANET_ANIM_DUR -- Added to animation_progress until fully entered. (1.0)
+local planet_scale_diff = PLANET_SCALE - PLANET_INIT_SCALE -- Used in animation. Normally just PLANET_SCALE.
 
 -- Parallax and rotation configs
 local PARALLAX_ENABLED = settings.global["visible-planets-enable-parallax"].value
@@ -22,6 +24,7 @@ script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
 	PLANET_ARRIVE_DIST = settings.global["visible-planets-planet-init-dist"].value
 	PLANET_DEPART_DIST = PLANET_ARRIVE_DIST * 2
 	PLANET_SCALE = settings.global["visible-planets-planet-scale"].value
+	PLANET_INIT_SCALE = math.min(settings.global["visible-planets-planet-init-scale"].value + 0, PLANET_SCALE - 0.01) -- Clamped to just under planet-scale's value.
 	PLANET_ANIM_DUR = settings.global["visible-planets-planet-anim-dur"].value
 	PLANET_ANGLE = settings.global["visible-planets-planet-angle"].value / 360.0
 	planet_progress_per_tick = 1.0 / PLANET_ANIM_DUR
@@ -29,6 +32,7 @@ script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
 	PARALLAX_FACTOR = settings.global["visible-planets-parallax-factor"].value
 	ROTATION_ENABLED = settings.global["visible-planets-enable-rotation"].value
 	ROTATION_SPEED = settings.global["visible-planets-rotation-speed"].value / 360.0
+	planet_scale_diff = PLANET_SCALE - PLANET_INIT_SCALE
 
 	-- If regen renders is set true, then clear and regen all planet renders, and set setting to false.
 	if settings.global["visible-planets-regen-renders"].value then
@@ -40,7 +44,7 @@ script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
 		storage.visible_planets_renders_shrink = {}
 		for _, surface in pairs(game.surfaces) do
 			if surface.platform then
-				render_planet_on_platform(surface.platform)
+				vp_render_planet_on_platform(surface.platform)
 			end
 		end
 		settings.global["visible-planets-regen-renders"] = {value = false}
@@ -54,8 +58,8 @@ script.on_init(function()
 	storage.visible_planets_renders_shrink = {} -- Planets put here will be shrunk then removed.
 end)
 
--- Function to render a planet on a platform. Used for the initial render of all platforms. (Also called from migrations.)
-function render_planet_on_platform(platform)
+-- GLOBAL Function to render a planet on a platform. Used for the initial render of all platforms. (Also called from migrations.)
+function vp_render_planet_on_platform(platform)
 	if platform.surface then -- Check platform exists first
 		local location = platform.space_location -- Can be nil
 		local render_exists = storage.visible_planets_renders_still[platform.index] ~= nil or storage.visible_planets_renders_grow[platform.index] ~= nil
@@ -86,8 +90,8 @@ function render_planet_on_platform(platform)
 					render_layer = "zero",
 					target = {PLANET_POS_X, PLANET_POS_Y - PLANET_ARRIVE_DIST},
 					orientation = PLANET_ANGLE,
-					x_scale = 0,
-					y_scale = 0,
+					x_scale = PLANET_INIT_SCALE,
+					y_scale = PLANET_INIT_SCALE,
 					orientation_target = {PLANET_POS_X, -99999}, -- Pointing up
 					oriented_offset = {0, 0}, -- Will be used for parallax effect.
 				}
@@ -98,7 +102,7 @@ function render_planet_on_platform(platform)
 					depart_y_offset = 0, -- Used for departure animation, may be updated before departure.
 					player = nil, -- The player watching this planet. (Used for parallax and rotation.)
 				}
-				update_render_table_players() -- Check if a player is watching this planet. (Also updates other renders.)
+				vp_update_render_table_players() -- Check if a player is watching this planet. (Also updates other renders.)
 			end
 		end
 	end
@@ -106,11 +110,11 @@ end
 
 -- When a platform changes state, render or derender the planet in the background.
 script.on_event(defines.events.on_space_platform_changed_state, function(event)
-	render_planet_on_platform(event.platform)
+	vp_render_planet_on_platform(event.platform)
 end)
 
--- Quick helper functo check player surface locations and update render tables accordingly.
-function update_render_table_players()
+-- Quick GLOBAL helper functo check player surface locations and update render tables accordingly.
+function vp_update_render_table_players()
 	-- Clear old players
 	for _, render in pairs(storage.visible_planets_renders_still) do render.player = nil end
 	for _, render in pairs(storage.visible_planets_renders_grow) do render.player = nil end
@@ -130,7 +134,7 @@ end
 
 -- When a player changes surface, update the render tables.
 script.on_event(defines.events.on_player_changed_surface, function(event)
-	update_render_table_players()
+	vp_update_render_table_players()
 end)
 
 -- Parallax and rotation animation function, given a render.
@@ -163,7 +167,7 @@ script.on_event(defines.events.on_tick, function(event)
 		else
 			if render.animation_progress < 1.0 then
 				local eased = render.animation_progress * (2 - render.animation_progress) -- Fast at low dur, slow at high dur.
-				local scale = PLANET_SCALE * eased
+				local scale = PLANET_INIT_SCALE + (planet_scale_diff * eased)
 				render.obj.x_scale = scale
 				render.obj.y_scale = scale
 				render.obj.target = {x = PLANET_POS_X, y = PLANET_POS_Y - (1 - eased) * PLANET_ARRIVE_DIST}
@@ -183,7 +187,7 @@ script.on_event(defines.events.on_tick, function(event)
 		else
 			if render.animation_progress > 0.0 then
 				local eased = render.animation_progress * (2 - render.animation_progress) -- Fast at low dur, slow at high dur.
-				local scale = PLANET_SCALE * eased
+				local scale = PLANET_INIT_SCALE + (planet_scale_diff * eased)
 				render.obj.x_scale = scale
 				render.obj.y_scale = scale
 				render.obj.target = {x = PLANET_POS_X, y = PLANET_POS_Y + (1 - eased) * PLANET_DEPART_DIST + render.depart_y_offset} -- Offset often 0.

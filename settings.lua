@@ -9,25 +9,33 @@ data:extend({
     },
     {
         type = "double-setting",
+        name = "visible-planets-planet-init-scale",
+        setting_type = "runtime-global",
+        default_value = 0.0, -- Will be clamped to planet-scale's value at runtime.
+        minimum_value = 0.0,
+        order = "b[sprite]-a"
+    },
+    {
+        type = "double-setting",
         name = "visible-planets-planet-scale",
         setting_type = "runtime-global",
         default_value = 6.0,
         minimum_value = 0.0,
-        order = "b[sprite]-a"
+        order = "b[sprite]-b"
     },
     {
         type = "int-setting",
         name = "visible-planets-planet-pos-x",
         setting_type = "runtime-global",
         default_value = -75,
-        order = "b[sprite]-b"
+        order = "b[sprite]-c"
     },
     {
         type = "int-setting",
         name = "visible-planets-planet-pos-y",
         setting_type = "runtime-global",
         default_value = 20,
-        order = "b[sprite]-c"
+        order = "b[sprite]-d"
     },
     {
         type = "int-setting",
@@ -35,7 +43,7 @@ data:extend({
         setting_type = "runtime-global",
         default_value = 200,
         minimum_value = 0, -- Always in front of platform, so players don't get confused with whether or not to use a negative number here.
-        order = "b[sprite]-d"
+        order = "b[sprite]-e"
     },
     {
         type = "int-setting",
@@ -43,7 +51,7 @@ data:extend({
         setting_type = "runtime-global",
         default_value = 300,
         minimum_value = 1, -- Avoid division by zero
-        order = "b[sprite]-e"
+        order = "b[sprite]-f"
     },
     {
         type = "int-setting",
@@ -52,7 +60,7 @@ data:extend({
         default_value = 0,
         minimum_value = 0,
         maximum_value = 359,
-        order = "b[sprite]-f"
+        order = "b[sprite]-g"
     },
     {
         type = "bool-setting",
@@ -84,5 +92,12 @@ data:extend({
         minimum_value = -180,
         maximum_value = 180,
         order = "d[rotation]-b"
+    },
+    -- Startup settings
+    {
+        type = "bool-setting",
+        name = "visible-planets-override-show-planets",
+        setting_type = "startup",
+        default_value = false,
     }
 })

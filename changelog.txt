@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.6
+Date: 2024.12.08
+  Changes:
+    - Initial scale can now be configured. Setting to the same as normal planet scale will effectively disable scaling during animations.
+    - Mods can now configure certian locations to not show a planet render. A new config option can override this functionality if desired.
+    - Added German (de) locale. (Thanks to OC1024!)
+    - (Note: This will likely be the last features update for a short while, as I will be unable to code for a few weeks starting tomorrow.)
+---------------------------------------------------------------------------------------------------
 Version: 1.2.5
 Date: 2024.12.06
   Changes:
