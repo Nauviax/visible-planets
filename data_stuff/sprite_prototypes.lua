@@ -4,19 +4,19 @@ local use_blacklist = not settings.startup["visible-planets-override-show-planet
 
 -- Create SpritePrototype for each planet
 local function create_planet_sprite_prototype(planet)
-    local size = planet.starmap_icon_size or planet.icon_size
-    if not size then
-        log("Skipping visible-planets for location " .. planet.name .. " because it has no sprite. (starmap_icon_size or icon_size missing)")
+    local icon = planet.starmap_icon
+    if not icon then
+        log("Skipping visible-planets for location " .. planet.name .. " because it has no sprite. (starmap_icon missing)")
         return
     end
-    log("Adding visible-planets for location " .. planet.name)
+    log("Adding visible-planets for location " .. planet.name.. " with sprite " .. icon)
     local name = "visible-planets-" .. planet.name
     local sprite_prototype = {
         type = "sprite",
         name = name,
-        filename = planet.starmap_icon or planet.icon,
-        size = size,
-        scale = math.min(1, sprite_goal_size/size), -- Scale down large sprites. Shouldn't reduce resolution.
+        filename = icon,
+        size = planet.starmap_icon_size,
+        scale = math.min(1, sprite_goal_size/planet.starmap_icon_size), -- Scale down large sprites. Shouldn't reduce resolution.
         mipmap_count = 1,
         flags = { "linear-minification", "linear-magnification" }, -- Prevent pixels showing.
         -- Sprite priority?

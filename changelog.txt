@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.10
+Date: 2024.12.24
+  Changes:
+    - Fixed an issue when space locations defined a starmap_icon_size but had no starmap_icon.
+    - Removed icon fallback as it seems it may have never been working anyway. Modded planets now must define a starmap_icon to be rendered.
+---------------------------------------------------------------------------------------------------
 Version: 1.2.9
 Date: 2024.12.20
   Changes:
