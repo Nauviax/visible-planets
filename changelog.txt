@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.11
+Date: 2024.12.25
+  Changes:
+    - Mods can now set custom scales for individual planets, meaning modded planets can appear larger or smaller than others as desired.
+    - Mods can also override the filepath for planet renders directly, if they don't want to change the starmap icon. (Replacing the starmap icon still works too.)
+    - (It should be fairly easy to add other overrides if needed, so feel free to request anything else you might want to customize via modding.)
+    - Slightly shorter console logging messages, and prevented some console warnings. (Unused mipmaps)
+---------------------------------------------------------------------------------------------------
 Version: 1.2.10
 Date: 2024.12.24
   Changes:

@@ -1,2 +1,2 @@
--- Create blacklist and the function to add to it.
-require("data_stuff/planet_blacklist.lua")
+-- Public functions, like adding to a blacklist.
+require("data_stuff/global_functions.lua")
