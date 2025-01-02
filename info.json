@@ -1,6 +1,6 @@
 {
   "name": "visible-planets",
-  "version": "1.2.13",
+  "version": "1.2.14",
   "title": "Visible Planets in Space",
   "author": "Nauviax",
   "description": "Render the local planet behind platforms when in orbit. Now with parallax, rotation, and automatic mod support!",
