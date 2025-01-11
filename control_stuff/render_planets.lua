@@ -140,11 +140,15 @@ end)
 -- Parallax and rotation animation function, given a render.
 local function fancy_animations(render)
 	if render.player and PARALLAX_ENABLED then -- Will end up correct only for one player watching a given planet.
-		local player_position = render.player.position
-		local planet_position = render.obj.target.position
-		local x_offset = (player_position.x - planet_position.x) / PARALLAX_FACTOR
-		local y_offset = (player_position.y - planet_position.y) / PARALLAX_FACTOR
-		render.obj.oriented_offset = {x_offset, y_offset} -- Will not affect literal position.
+		if render.player.valid then
+			local player_position = render.player.position
+			local planet_position = render.obj.target.position
+			local x_offset = (player_position.x - planet_position.x) / PARALLAX_FACTOR
+			local y_offset = (player_position.y - planet_position.y) / PARALLAX_FACTOR
+			render.obj.oriented_offset = {x_offset, y_offset} -- Will not affect literal position.
+		else
+			render.player = nil -- Very niche case, but can happen in map editor with editor extensions installed.
+		end
 	end
 	if ROTATION_ENABLED then
 		local new_ang = render.obj.orientation + ROTATION_SPEED

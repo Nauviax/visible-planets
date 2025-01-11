@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.2.16
+Date: 2025.01.12
+  Changes:
+    - Fixed a crash when loading a scenario with the map editor while Editor Extensions is installed. (Added check for LuaPlayer being invalid)
+---------------------------------------------------------------------------------------------------
 Version: 1.2.15
 Date: 2025.01.03
   Changes:
