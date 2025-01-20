@@ -123,4 +123,13 @@ data:extend({
         default_value = 8,
         order = "d[rotation]-b"
     },
+    {
+        type = "double-setting",
+        name = "visible-planets-background-body-tint",
+        setting_type = "startup",
+        default_value = 0.5,
+        minimum_value = 0,
+        maximum_value = 1,
+        order = "d[rotation]-b"
+    },
 })

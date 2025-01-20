@@ -38,7 +38,6 @@ local function create_planet_sprite_prototype(planet)
             size = icon_size,
             scale = scale_override * (sprite_goal_size/icon_size), -- Scale down large sprites. Shouldn't reduce resolution.
             flags = { "linear-minification", "linear-magnification" }, -- Prevent pixels showing.
-            -- mipmap_count = 1,
         }
     local parent_planet_str
     if planet["surface_properties"] then
@@ -46,20 +45,16 @@ local function create_planet_sprite_prototype(planet)
     end
     local parent_scaling = settings.startup["visible-planets-parent-planets-scale"].value
     if planet["surface_properties"] and  planet["surface_properties"]["parent-planet-str"] ~= nil then --If body is a moon, add planet to background
-        --assert(1==0)
-        for _,other_planet in pairs(data.raw["planet"]) do
+        for _,other_planet in pairs(data.raw["planet"]) do --Searches for parent body
             if other_planet.surface_properties and PlanetsLib.planet_str.get_planet_str_double(other_planet) == parent_planet_str then
                 if other_planet.starmap_icon then
-                    --local moon_layer = sprite_prototype.layers[1]
-                    --sprite_prototype.layers[2] = sprite_prototype.layers[1]
-                    table.insert(sprite_prototype.layers,
-                    {
+                    table.insert(sprite_prototype.layers, --Add planet to background
+                    { 
                         filename = other_planet.starmap_icon,
                         size = other_planet.starmap_icon_size,
                         scale = parent_scaling* (sprite_goal_size/other_planet.starmap_icon_size), -- Scale down large sprites. Shouldn't reduce resolution.
-                        shift={settings.startup["visible-planets-parent-planet-shift-x"].value,-settings.startup["visible-planets-parent-planet-shift-y"].value},
+                        shift = {settings.startup["visible-planets-parent-planet-shift-x"].value,-settings.startup["visible-planets-parent-planet-shift-y"].value},
                         flags = { "linear-minification", "linear-magnification" }, -- Prevent pixels showing.
-                        -- mipmap_count = 1,
                     })
                 end
                 
@@ -70,7 +65,8 @@ local function create_planet_sprite_prototype(planet)
     --If body has any moons, add them to background
     local shift_x = settings.startup["visible-planets-parent-planet-shift-x"].value
     local shift_y=-settings.startup["visible-planets-parent-planet-shift-y"].value
-    for _,other_planet in pairs(data.raw["planet"]) do --Search for moons
+    local background_tint=settings.startup["visible-planets-background-body-tint"].value
+    for _,other_planet in pairs(data.raw["planet"]) do --Searches for moons
         if other_planet["surface_properties"] and  other_planet["surface_properties"]["parent-planet-str"] ~= nil then 
             if planet["surface_properties"] and other_planet["surface_properties"] and planet["surface_properties"]["planet-str"] == other_planet["surface_properties"]["parent-planet-str"] then --If this other planet is a moon of this planet
                 if other_planet.starmap_icon then
@@ -78,8 +74,8 @@ local function create_planet_sprite_prototype(planet)
                         {
                             filename = other_planet.starmap_icon,
                             size = other_planet.starmap_icon_size,
-                            scale = parent_scaling* (sprite_goal_size/other_planet.starmap_icon_size), -- Scale down large sprites. Shouldn't reduce resolution.
-                            shift={shift_x,shift_y},
+                            scale = parent_scaling * (sprite_goal_size/other_planet.starmap_icon_size), -- Scale down large sprites. Shouldn't reduce resolution.
+                            shift = {shift_x,shift_y},
                             flags = { "linear-minification", "linear-magnification" }, -- Prevent pixels showing.
                             -- mipmap_count = 1,
                         })
@@ -93,7 +89,7 @@ local function create_planet_sprite_prototype(planet)
         child.shift = {shift_x,shift_y}
         shift_x = shift_x*math.cos(math.pi/num_children)-shift_y*math.sin(math.pi/num_children)
         shift_y = shift_x*math.sin(math.pi/num_children)-shift_y*math.cos(math.pi/num_children)
-        child.tint = {0.5,0.5,0.5}
+        child.tint = {background_tint,background_tint,background_tint}
     end
 
     table.insert(sprite_prototype.layers, --Planet sprite on top of all background bodies.
