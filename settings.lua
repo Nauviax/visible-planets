@@ -99,5 +99,28 @@ data:extend({
         name = "visible-planets-override-show-planets",
         setting_type = "startup",
         default_value = false,
-    }
+    },
+    {
+        type = "double-setting",
+        name = "visible-planets-parent-planets-scale",
+        setting_type = "startup",
+        default_value = 0.2,
+        minimum_value = 0,
+        maximum_value = 180,
+        order = "d[rotation]-b"
+    },
+    {
+        type = "double-setting",
+        name = "visible-planets-parent-planet-shift-x",
+        setting_type = "startup",
+        default_value = -8,
+        order = "d[rotation]-b"
+    },
+    {
+        type = "double-setting",
+        name = "visible-planets-parent-planet-shift-y",
+        setting_type = "startup",
+        default_value = 8,
+        order = "d[rotation]-b"
+    },
 })
