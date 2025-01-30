@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.3.0
+Date: 2025.01.30
+  Changes:
+    - Nearby planets and moons are now rendered in the background of main render. Only works for moons added via PlanetsLib. (Thanks MeteorStorm/nicholasgower!)
+---------------------------------------------------------------------------------------------------
 Version: 1.2.16
 Date: 2025.01.12
   Changes:
