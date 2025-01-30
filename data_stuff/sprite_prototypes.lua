@@ -1,6 +1,11 @@
 -- Constants
 local sprite_goal_size = 512 -- Sprites that have a different size will be scaled to this size.
 local use_blacklist = not settings.startup["visible-planets-override-show-planets"].value -- If true, override and *DON'T* use blacklist. I got it backwards.
+local use_planetslib_compat = settings.startup["visible-planets-planetslib-compat"].value -- If true, add PlanetsLib layers to planets and moons.
+local planetslib_scale = settings.startup["visible-planets-planetslib-scale"].value
+local planetslib_x = settings.startup["visible-planets-planetslib-x"].value
+local planetslib_y = settings.startup["visible-planets-planetslib-y"].value
+local planetslib_tint = settings.startup["visible-planets-planetslib-tint"].value
 
 -- Create SpritePrototype for each planet
 local planet_overrides = vp_get_planet_overrides() -- Defined in separate file
@@ -30,73 +35,64 @@ local function create_planet_sprite_prototype(planet)
     local sprite_prototype = {
         type = "sprite",
         name = name,
-        layers = {}, --Layers will be added later
+        layers = {}, -- Added below
     }
-    local main_layer =
-        {
-            filename = icon,
-            size = icon_size,
-            scale = scale_override * (sprite_goal_size/icon_size), -- Scale down large sprites. Shouldn't reduce resolution.
-            flags = { "linear-minification", "linear-magnification" }, -- Prevent pixels showing.
-        }
-    local parent_planet_str
-    if planet["surface_properties"] then
-        parent_planet_str = planet["surface_properties"]["parent-planet-str"]
-    end
-    local parent_scaling = settings.startup["visible-planets-parent-planets-scale"].value
-    if planet["surface_properties"] and  planet["surface_properties"]["parent-planet-str"] ~= nil then --If body is a moon, add planet to background
-        for _,other_planet in pairs(data.raw["planet"]) do --Searches for parent body
-            if other_planet.surface_properties and PlanetsLib.planet_str.get_planet_str_double(other_planet) == parent_planet_str then
-                if other_planet.starmap_icon then
-                    table.insert(sprite_prototype.layers, --Add planet to background
-                    { 
+    local main_layer = { -- Large planet render
+        filename = icon,
+        size = icon_size,
+        scale = scale_override * (sprite_goal_size/icon_size), -- Scale down large sprites. Shouldn't reduce resolution.
+        flags = { "linear-minification", "linear-magnification" }, -- Prevent pixels showing.
+    }
+
+    -- PlanetLib compat, if it exists and is enabled.
+    if use_planetslib_compat and mods["PlanetsLib"] and planet.surface_properties then
+        -- Get the planet this "moon" is orbiting, if any.
+        local parent_planet_str = planet.surface_properties["parent-planet-str"]
+        -- Add parent layer if moon, or moon layer if parent of a moon.
+        if parent_planet_str then -- Is a moon
+            for _, other_planet in pairs(data.raw["planet"]) do
+                if other_planet.surface_properties and other_planet.surface_properties["planet-str"] == parent_planet_str then
+                    -- Add layer
+                    log("Adding PlanetsLib compat for moon " .. planet.name .. " orbiting " .. other_planet.name)
+                    table.insert(sprite_prototype.layers, {
                         filename = other_planet.starmap_icon,
                         size = other_planet.starmap_icon_size,
-                        scale = parent_scaling* (sprite_goal_size/other_planet.starmap_icon_size), -- Scale down large sprites. Shouldn't reduce resolution.
-                        shift = {settings.startup["visible-planets-parent-planet-shift-x"].value,-settings.startup["visible-planets-parent-planet-shift-y"].value},
-                        flags = { "linear-minification", "linear-magnification" }, -- Prevent pixels showing.
+                        scale = 0.2 * (sprite_goal_size/other_planet.starmap_icon_size),
+                        flags = { "linear-minification", "linear-magnification" },
+                        tint = { r = 0.5, g = 0.5, b = 0.5, a = 1 }, -- Darken
                     })
                 end
-                
             end
-        end
-    end
-
-    --If body has any moons, add them to background
-    local shift_x = settings.startup["visible-planets-parent-planet-shift-x"].value
-    local shift_y=-settings.startup["visible-planets-parent-planet-shift-y"].value
-    local background_tint=settings.startup["visible-planets-background-body-tint"].value
-    for _,other_planet in pairs(data.raw["planet"]) do --Searches for moons
-        if other_planet["surface_properties"] and  other_planet["surface_properties"]["parent-planet-str"] ~= nil then 
-            if planet["surface_properties"] and other_planet["surface_properties"] and planet["surface_properties"]["planet-str"] == other_planet["surface_properties"]["parent-planet-str"] then --If this other planet is a moon of this planet
-                if other_planet.starmap_icon then
-                    table.insert(sprite_prototype.layers,
-                        {
-                            filename = other_planet.starmap_icon,
-                            size = other_planet.starmap_icon_size,
-                            scale = parent_scaling * (sprite_goal_size/other_planet.starmap_icon_size), -- Scale down large sprites. Shouldn't reduce resolution.
-                            shift = {shift_x,shift_y},
-                            flags = { "linear-minification", "linear-magnification" }, -- Prevent pixels showing.
-                            -- mipmap_count = 1,
-                        })
+        else -- Is a planet, might have moon(s)
+            local planet_str = planet.surface_properties["planet-str"]
+            for _, other_planet in pairs(data.raw["planet"]) do
+                if other_planet.surface_properties and other_planet.surface_properties["parent-planet-str"] == planet_str then
+                    -- Add layer
+                    log("Adding PlanetsLib compat for " .. planet.name .. " with moon " .. other_planet.name)
+                    table.insert(sprite_prototype.layers, {
+                        filename = other_planet.starmap_icon,
+                        size = other_planet.starmap_icon_size,
+                        scale = planetslib_scale * (sprite_goal_size/other_planet.starmap_icon_size),
+                        flags = { "linear-minification", "linear-magnification" },
+                        tint = { r = planetslib_tint, g = planetslib_tint, b = planetslib_tint, a = 1 }, -- Darken
+                    })
                 end
             end
         end
-    end
-    local num_children=#sprite_prototype.layers --Number of background bodies
-    for _,child in pairs(sprite_prototype.layers) do --Rotate background bodies about main body.
-    
-        child.shift = {shift_x,shift_y}
-        shift_x = shift_x*math.cos(math.pi/num_children)-shift_y*math.sin(math.pi/num_children)
-        shift_y = shift_x*math.sin(math.pi/num_children)-shift_y*math.cos(math.pi/num_children)
-        child.tint = {background_tint,background_tint,background_tint}
+        -- Arrange bodies around main body.
+        local num_children = #sprite_prototype.layers
+        local shift_x = planetslib_x -- Initial shift, top left corner.
+        local shift_y = planetslib_y
+        for _,child in pairs(sprite_prototype.layers) do -- Rotate background bodies about main body.
+            child.shift = {shift_x, shift_y}
+            shift_x = (shift_x * math.cos(math.pi/num_children)) - (shift_y * math.sin(math.pi/num_children))
+            shift_y = (shift_x * math.sin(math.pi/num_children)) - (shift_y * math.cos(math.pi/num_children))
+        end
     end
 
-    table.insert(sprite_prototype.layers, --Planet sprite on top of all background bodies.
-        main_layer
-    )
-
-    data:extend { sprite_prototype }
+    -- Add main planet as top layer
+    table.insert(sprite_prototype.layers, main_layer)
+    data:extend{sprite_prototype}
 end
 
 -- Create SpritePrototypes for each planet not in the blacklist

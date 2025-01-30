@@ -99,37 +99,45 @@ data:extend({
         name = "visible-planets-override-show-planets",
         setting_type = "startup",
         default_value = false,
+        order = "a[general]-a"
+    },
+    {
+        type = "bool-setting",
+        name = "visible-planets-planetslib-compat",
+        setting_type = "startup",
+        default_value = true,
+        order = "b[planetslib]-a"
     },
     {
         type = "double-setting",
-        name = "visible-planets-parent-planets-scale",
+        name = "visible-planets-planetslib-scale",
         setting_type = "startup",
         default_value = 0.2,
         minimum_value = 0,
-        maximum_value = 180,
-        order = "d[rotation]-b"
+        maximum_value = 10,
+        order = "b[planetslib]-b"
     },
     {
         type = "double-setting",
-        name = "visible-planets-parent-planet-shift-x",
+        name = "visible-planets-planetslib-x",
         setting_type = "startup",
-        default_value = -8,
-        order = "d[rotation]-b"
+        default_value = -7.5,
+        order = "b[planetslib]-c"
     },
     {
         type = "double-setting",
-        name = "visible-planets-parent-planet-shift-y",
+        name = "visible-planets-planetslib-y",
         setting_type = "startup",
-        default_value = 8,
-        order = "d[rotation]-b"
+        default_value = -7.5,
+        order = "b[planetslib]-d"
     },
     {
         type = "double-setting",
-        name = "visible-planets-background-body-tint",
+        name = "visible-planets-planetslib-tint",
         setting_type = "startup",
         default_value = 0.5,
         minimum_value = 0,
         maximum_value = 1,
-        order = "d[rotation]-b"
-    },
+        order = "b[planetslib]-e"
+    }
 })
