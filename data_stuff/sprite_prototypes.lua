@@ -44,41 +44,35 @@ local function create_planet_sprite_prototype(planet)
         flags = { "linear-minification", "linear-magnification" }, -- Prevent pixels showing.
     }
 
-    -- PlanetLib compat, if it exists and is enabled.
-    if use_planetslib_compat and mods["PlanetsLib"] and planet.surface_properties then
-        -- Get the planet this "moon" is orbiting, if any.
-        local parent_planet_str = planet.surface_properties["parent-planet-str"]
-        -- Add parent layer if moon, or moon layer if parent of a moon.
-        if parent_planet_str then -- Is a moon
-            for _, other_planet in pairs(data.raw["planet"]) do
-                if other_planet.surface_properties and other_planet.surface_properties["planet-str"] == parent_planet_str then
-                    -- Add layer
-                    log("Adding PlanetsLib compat for moon " .. planet.name .. " orbiting " .. other_planet.name)
-                    table.insert(sprite_prototype.layers, {
-                        filename = other_planet.starmap_icon,
-                        size = other_planet.starmap_icon_size,
-                        scale = 0.2 * (sprite_goal_size/other_planet.starmap_icon_size),
-                        flags = { "linear-minification", "linear-magnification" },
-                        tint = { r = 0.5, g = 0.5, b = 0.5, a = 1 }, -- Darken
-                    })
-                end
-            end
-        else -- Is a planet, might have moon(s)
-            local planet_str = planet.surface_properties["planet-str"]
-            for _, other_planet in pairs(data.raw["planet"]) do
-                if other_planet.surface_properties and other_planet.surface_properties["parent-planet-str"] == planet_str then
-                    -- Add layer
-                    log("Adding PlanetsLib compat for " .. planet.name .. " with moon " .. other_planet.name)
-                    table.insert(sprite_prototype.layers, {
-                        filename = other_planet.starmap_icon,
-                        size = other_planet.starmap_icon_size,
-                        scale = planetslib_scale * (sprite_goal_size/other_planet.starmap_icon_size),
-                        flags = { "linear-minification", "linear-magnification" },
-                        tint = { r = planetslib_tint, g = planetslib_tint, b = planetslib_tint, a = 1 }, -- Darken
-                    })
-                end
+    if use_planetslib_compat and mods["PlanetsLib"] then
+
+        local orbit = planet.orbit
+        if orbit and orbit.parent and orbit.parent.type and orbit.parent.type == "planet" and orbit.parent.name then
+            local parent = data.raw["planet"][orbit.parent.name]
+            log("Adding PlanetsLib compat for moon " .. planet.name .. " orbiting " .. parent.name)
+            table.insert(sprite_prototype.layers, {
+                filename = parent.starmap_icon,
+                size = parent.starmap_icon_size,
+                scale = 0.2 * (sprite_goal_size/parent.starmap_icon_size),
+                flags = { "linear-minification", "linear-magnification" },
+                tint = { r = 0.5, g = 0.5, b = 0.5, a = 1 }, -- Darken
+            })
+        end
+
+        -- Find all children:
+        for _, child in pairs(data.raw["planet"]) do
+            if child.orbit and child.orbit.parent and child.orbit.parent.type and child.orbit.parent.type == "planet" and child.orbit.parent.name == planet.name then
+                log("Adding PlanetsLib compat for " .. planet.name .. " with moon " .. child.name)
+                table.insert(sprite_prototype.layers, {
+                    filename = child.starmap_icon,
+                    size = child.starmap_icon_size,
+                    scale = planetslib_scale * (sprite_goal_size/child.starmap_icon_size),
+                    flags = { "linear-minification", "linear-magnification" },
+                    tint = { r = planetslib_tint, g = planetslib_tint, b = planetslib_tint, a = 1 }, -- Darken
+                })
             end
         end
+
         -- Arrange bodies around main body.
         local num_children = #sprite_prototype.layers
         local shift_x = planetslib_x -- Initial shift, top left corner.
