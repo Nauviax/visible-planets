@@ -4,7 +4,7 @@ local PLANET_POS_Y = settings.global["visible-planets-planet-pos-y"].value + 0
 local PLANET_ARRIVE_DIST = settings.global["visible-planets-planet-init-dist"].value
 local PLANET_DEPART_DIST_MULT = 2 -- Departing planets will go twice as fast as arriving planets. (Used in more locations than just next line!)
 local PLANET_DEPART_DIST = PLANET_ARRIVE_DIST * PLANET_DEPART_DIST_MULT -- Departing planets will go twice as fast as arriving planets.
-local PLANET_SCALE = settings.global["visible-planets-planet-scale"].value
+local PLANET_SCALE = settings.global["visible-planets-planet-scale"].value + 0
 local PLANET_INIT_SCALE = math.min(settings.global["visible-planets-planet-init-scale"].value + 0, PLANET_SCALE - 0.01) -- Clamped to just under planet-scale's value.
 local PLANET_ANIM_DUR = settings.global["visible-planets-planet-anim-dur"].value -- Ticks for growing and shrinking
 local PLANET_ANGLE = settings.global["visible-planets-planet-angle"].value / 360.0 -- Given in degrees, requires 0-1.
@@ -23,7 +23,7 @@ script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
 	PLANET_POS_Y = settings.global["visible-planets-planet-pos-y"].value + 0
 	PLANET_ARRIVE_DIST = settings.global["visible-planets-planet-init-dist"].value
 	PLANET_DEPART_DIST = PLANET_ARRIVE_DIST * 2
-	PLANET_SCALE = settings.global["visible-planets-planet-scale"].value
+	PLANET_SCALE = settings.global["visible-planets-planet-scale"].value + 0
 	PLANET_INIT_SCALE = math.min(settings.global["visible-planets-planet-init-scale"].value + 0, PLANET_SCALE - 0.01) -- Clamped to just under planet-scale's value.
 	PLANET_ANIM_DUR = settings.global["visible-planets-planet-anim-dur"].value
 	PLANET_ANGLE = settings.global["visible-planets-planet-angle"].value / 360.0
@@ -36,9 +36,12 @@ script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
 
 	-- If regen renders is set true, then clear and regen all planet renders, and set setting to false.
 	if settings.global["visible-planets-regen-renders"].value then
-		for _, sprite in pairs(storage.visible_planets_renders_still) do sprite.obj.destroy() end
-		for _, sprite in pairs(storage.visible_planets_renders_grow) do sprite.obj.destroy() end
-		for _, sprite in pairs(storage.visible_planets_renders_shrink) do sprite.obj.destroy() end
+		for _, render in pairs(storage.visible_planets_renders_still) do
+			for _, sprite in pairs(render.renders) do sprite.destroy() end end
+		for _, render in pairs(storage.visible_planets_renders_grow) do
+			for _, sprite in pairs(render.renders) do sprite.destroy() end end
+		for _, render in pairs(storage.visible_planets_renders_shrink) do
+			for _, sprite in pairs(render.renders) do sprite.destroy() end end
 		storage.visible_planets_renders_still = {}
 		storage.visible_planets_renders_grow = {}
 		storage.visible_planets_renders_shrink = {}
@@ -68,41 +71,40 @@ function vp_render_planet_on_platform(platform)
 			if render_exists then
 				-- If a relevant planet is in the shrinking list, remove it first. Looks ugly, but better than leaving permanent planet orphans.
 				if storage.visible_planets_renders_shrink[platform.index] then
-					storage.visible_planets_renders_shrink[platform.index].obj.destroy()
+					for _, sprite in pairs(storage.visible_planets_renders_shrink[platform.index].renders) do
+						sprite.destroy() -- Remove all sprites.
+					end
+					storage.visible_planets_renders_shrink[platform.index] = nil
 				end
 				if storage.visible_planets_renders_still[platform.index] then
 					-- depart_y_offset is already correct. (0)
 					storage.visible_planets_renders_shrink[platform.index] = storage.visible_planets_renders_still[platform.index]
 				else -- Planet is growing, needs to be shrunk, but starting at PLANET_POS_Y will cause a jump.
 					local render = storage.visible_planets_renders_grow[platform.index]
-					render.depart_y_offset = (1 + PLANET_DEPART_DIST_MULT) * (render.obj.target.position.y - PLANET_POS_Y) -- Offset departure animation to remove jump. Should be negative.
+					local eased = render.animation_progress * (2 - render.animation_progress)
+					render.depart_y_offset = (1 + PLANET_DEPART_DIST_MULT) * ((PLANET_POS_Y - (1 - eased) * PLANET_ARRIVE_DIST) - PLANET_POS_Y) -- Offset departure animation to remove jump. Should be negative.
+					-- !!! TEST ABOVE LINE
 					storage.visible_planets_renders_shrink[platform.index] = render
 				end
 				-- Remove from other lists. Can delete two planets technically.
 				storage.visible_planets_renders_still[platform.index] = nil
 				storage.visible_planets_renders_grow[platform.index] = nil
 			end
-		else -- Render planet, if not already rendered
+		else -- Render planet, if not already rendered (Using P1 as player)
 			if not render_exists and helpers.is_valid_sprite_path("visible-planets-" .. location.name) then
-				local sprite = rendering.draw_sprite {
-					sprite = "visible-planets-" .. location.name,
-					surface = platform.surface,
-					render_layer = "zero",
-					target = {PLANET_POS_X, PLANET_POS_Y - PLANET_ARRIVE_DIST},
-					orientation = PLANET_ANGLE,
-					x_scale = PLANET_INIT_SCALE,
-					y_scale = PLANET_INIT_SCALE,
-					orientation_target = {PLANET_POS_X, -99999}, -- Pointing up
-					oriented_offset = {0, 0}, -- Will be used for parallax effect.
-				}
 				-- Create render table/object
 				storage.visible_planets_renders_grow[platform.index] = {
-					obj = sprite, -- The LuaRenderObject
 					animation_progress = 0, -- 0-1, used for arrival and departure animations.
 					depart_y_offset = 0, -- Used for departure animation, may be updated before departure.
-					player = nil, -- The player watching this planet. (Used for parallax and rotation.)
+					renders = {}, -- Holds each render of the visible planet for each player.
+					surface = platform.surface, -- Used to generate sprite
+					location_name = location.name, -- Used to generate sprite
 				}
-				vp_update_render_table_players() -- Check if a player is watching this planet. (Also updates other renders.)
+				for _, player in pairs(game.players) do -- Add all players watching this platform to the render.
+					if player.surface.platform and player.surface.platform.index == platform.index then
+						vp_generate_sprite_for_player(player, storage.visible_planets_renders_grow[platform.index], true)
+					end
+				end
 			end
 		end
 	end
@@ -113,49 +115,119 @@ script.on_event(defines.events.on_space_platform_changed_state, function(event)
 	vp_render_planet_on_platform(event.platform)
 end)
 
--- Quick GLOBAL helper functo check player surface locations and update render tables accordingly.
-function vp_update_render_table_players()
-	-- Clear old players
-	for _, render in pairs(storage.visible_planets_renders_still) do render.player = nil end
-	for _, render in pairs(storage.visible_planets_renders_grow) do render.player = nil end
-	for _, render in pairs(storage.visible_planets_renders_shrink) do render.player = nil end
-	-- Get new players, if any are watching.
-	for _, player in pairs(game.players) do
-		if player.surface.platform then
-			local p_index = player.surface.platform.index
-			-- Get the render of the planet that is currently visible. Will only get one planet; Shrinking planets will be ignored if one is already growing.
-			local render = storage.visible_planets_renders_still[p_index] or storage.visible_planets_renders_grow[p_index] or storage.visible_planets_renders_shrink[p_index]
-			if render and not render.player then -- Gives priority to earlier players, which is also host.
-				render.player = player
+-- Generate a render for a given player on their watched platform, if it doesn't already exist.
+function vp_add_player_to_watched_render(player)
+	if player.surface.platform then -- Check each state a render can exist, add player if so.
+		local p_index = player.surface.platform.index
+		if storage.visible_planets_renders_still[p_index] then
+			vp_generate_sprite_for_player(player, storage.visible_planets_renders_still[p_index], false)
+		end
+		if storage.visible_planets_renders_grow[p_index] then
+			vp_generate_sprite_for_player(player, storage.visible_planets_renders_grow[p_index], true)
+		end
+		if storage.visible_planets_renders_shrink[p_index] then
+			vp_generate_sprite_for_player(player, storage.visible_planets_renders_shrink[p_index], true)
+		end
+	end
+end
+
+-- Generate a new sprite for a given player and render obj. Optionally generate hidden.
+function vp_generate_sprite_for_player(player, render, generate_hidden)
+	if render.renders[player.index] then
+		return -- Already exists, don't make another.
+	end
+	local sprite = rendering.draw_sprite {
+		sprite = "visible-planets-" .. render.location_name,
+		surface = render.surface,
+		render_layer = "zero",
+		target = {PLANET_POS_X, PLANET_POS_Y},
+		orientation = PLANET_ANGLE,
+		x_scale = PLANET_SCALE,
+		y_scale = PLANET_SCALE,
+		orientation_target = {PLANET_POS_X, -99999}, -- Pointing up
+		oriented_offset = {0, 0}, -- Will be used for parallax effect.
+		players = {player} -- Only visible to this player.
+	}
+	if generate_hidden then -- Avoid single frame pop-in when planet isn't still on generation.
+		sprite.x_scale = 0
+		sprite.y_scale = 0
+	end
+	render.renders[player.index] = sprite
+end
+
+-- Remove a player from a render, given a player and surface, if it exists.
+function vp_remove_player_from_render(player, old_surface_index)
+	if not old_surface_index then
+		return -- Surface was deleted.
+	end
+	local old_surface = game.surfaces[old_surface_index]
+	if old_surface.platform then
+		local p_index = old_surface.platform.index
+		local render = storage.visible_planets_renders_still[p_index]
+		if render then
+			if render.renders[player.index] then
+				render.renders[player.index].destroy()
+				render.renders[player.index] = nil
+			end
+		end
+		render = storage.visible_planets_renders_grow[p_index]
+		if render then
+			if render.renders[player.index] then
+				render.renders[player.index].destroy()
+				render.renders[player.index] = nil
+			end
+		end
+		render = storage.visible_planets_renders_shrink[p_index]
+		if render then
+			if render.renders[player.index] then
+				render.renders[player.index].destroy()
+				render.renders[player.index] = nil
 			end
 		end
 	end
 end
 
--- When a player changes surface, update the render tables.
+-- When a player changes surface, remove their render from old surface and add to new surface.
 script.on_event(defines.events.on_player_changed_surface, function(event)
-	vp_update_render_table_players()
+	vp_remove_player_from_render(game.players[event.player_index], event.surface_index) -- Surface_index may be nil
+	vp_add_player_to_watched_render(game.players[event.player_index])
 end)
 
--- Parallax and rotation animation function, given a render.
-local function fancy_animations(render)
-	if render.player and PARALLAX_ENABLED then -- Will end up correct only for one player watching a given planet.
-		if render.player.valid then
-			local player_position = render.player.position
-			local planet_position = render.obj.target.position
-			local x_offset = (player_position.x - planet_position.x) / PARALLAX_FACTOR
-			local y_offset = (player_position.y - planet_position.y) / PARALLAX_FACTOR
-			render.obj.oriented_offset = {x_offset, y_offset} -- Will not affect literal position.
-		else
-			render.player = nil -- Very niche case, but can happen in map editor with editor extensions installed.
+-- When a surface is deleted, remove all references to renders on that surface.
+script.on_event(defines.events.on_pre_surface_deleted, function(event)
+	local surface = game.surfaces[event.surface_index]
+	if surface.platform then
+		local p_index = surface.platform.index
+		local render = storage.visible_planets_renders_still[p_index]
+		if render then
+			storage.visible_planets_renders_still[p_index] = nil
+		end
+		render = storage.visible_planets_renders_grow[p_index]
+		if render then
+			storage.visible_planets_renders_grow[p_index] = nil
+		end
+		render = storage.visible_planets_renders_shrink[p_index]
+		if render then
+			storage.visible_planets_renders_shrink[p_index] = nil
 		end
 	end
+end)
+
+-- Parallax and rotation animation function, given a sprite.
+local function fancy_animations(sprite)
+	if PARALLAX_ENABLED then
+		local player_position = sprite.players[1].position
+		local planet_position = sprite.target.position
+		local x_offset = (player_position.x - planet_position.x) / PARALLAX_FACTOR
+		local y_offset = (player_position.y - planet_position.y) / PARALLAX_FACTOR
+		sprite.oriented_offset = {x_offset, y_offset} -- Will not affect literal position.
+	end
 	if ROTATION_ENABLED then
-		local new_ang = render.obj.orientation + ROTATION_SPEED
+		local new_ang = sprite.orientation + ROTATION_SPEED
 		if new_ang >= 1 then
 			new_ang = new_ang - 1
 		end
-		render.obj.orientation = new_ang
+		sprite.orientation = new_ang
 	end
 end
 
@@ -166,50 +238,46 @@ end
 script.on_event(defines.events.on_tick, function(event)
 	-- Arrival animation
 	for index, render in pairs(storage.visible_planets_renders_grow) do
-		if not render.obj.valid then
-			storage.visible_planets_renders_grow[index] = nil
-		else
-			if render.animation_progress < 1.0 then
-				local eased = render.animation_progress * (2 - render.animation_progress) -- Fast at low dur, slow at high dur.
-				local scale = PLANET_INIT_SCALE + (planet_scale_diff * eased)
-				render.obj.x_scale = scale
-				render.obj.y_scale = scale
-				render.obj.target = {x = PLANET_POS_X, y = PLANET_POS_Y - (1 - eased) * PLANET_ARRIVE_DIST}
-				fancy_animations(render) -- Animate fancy
-				render.animation_progress = render.animation_progress + planet_progress_per_tick
-			else
-				storage.visible_planets_renders_still[index] = render
-				storage.visible_planets_renders_grow[index] = nil
+		if render.animation_progress < 1.0 then
+			local eased = render.animation_progress * (2 - render.animation_progress) -- Fast at low dur, slow at high dur.
+			local scale = PLANET_INIT_SCALE + (planet_scale_diff * eased)
+			for _, sprite in pairs(render.renders) do -- For each player viewing render.
+				sprite.x_scale = scale
+				sprite.y_scale = scale
+				sprite.target = {x = PLANET_POS_X, y = PLANET_POS_Y - (1 - eased) * PLANET_ARRIVE_DIST}
+				fancy_animations(sprite) -- Animate fancy
 			end
+			render.animation_progress = render.animation_progress + planet_progress_per_tick
+		else
+			storage.visible_planets_renders_still[index] = render
+			storage.visible_planets_renders_grow[index] = nil
 		end
 	end
 
 	-- Departure animation
 	for index, render in pairs(storage.visible_planets_renders_shrink) do
-		if not render.obj.valid then
-			storage.visible_planets_renders_shrink[index] = nil
-		else
-			if render.animation_progress > 0.0 then
-				local eased = render.animation_progress * (2 - render.animation_progress) -- Fast at low dur, slow at high dur.
-				local scale = PLANET_INIT_SCALE + (planet_scale_diff * eased)
-				render.obj.x_scale = scale
-				render.obj.y_scale = scale
-				render.obj.target = {x = PLANET_POS_X, y = PLANET_POS_Y + (1 - eased) * PLANET_DEPART_DIST + render.depart_y_offset} -- Offset often 0.
-				fancy_animations(render) -- Animate fancy
-				render.animation_progress = render.animation_progress - planet_progress_per_tick
-			else
-				render.obj.destroy()
-				storage.visible_planets_renders_shrink[index] = nil
+		if render.animation_progress > 0.0 then
+			local eased = render.animation_progress * (2 - render.animation_progress) -- Fast at low dur, slow at high dur.
+			local scale = PLANET_INIT_SCALE + (planet_scale_diff * eased)
+			for _, sprite in pairs(render.renders) do -- For each player viewing render.
+				sprite.x_scale = scale
+				sprite.y_scale = scale
+				sprite.target = {x = PLANET_POS_X, y = PLANET_POS_Y + (1 - eased) * PLANET_DEPART_DIST + render.depart_y_offset} -- Offset often 0.
+				fancy_animations(sprite) -- Animate fancy
 			end
+			render.animation_progress = render.animation_progress - planet_progress_per_tick
+		else
+			for _, sprite in pairs(render.renders) do
+				sprite.destroy() -- Remove all sprites.
+			end
+			storage.visible_planets_renders_shrink[index] = nil
 		end
 	end
 
 	-- Standing animation
-	for index, render in pairs(storage.visible_planets_renders_still) do
-		if not render.obj.valid then
-			storage.visible_planets_renders_still[index] = nil
-		else
-			fancy_animations(render)
+	for _, render in pairs(storage.visible_planets_renders_still) do
+		for _, sprite in pairs(render.renders) do -- For each player viewing render.
+			fancy_animations(sprite) -- Animate fancy
 		end
 	end
 end)
