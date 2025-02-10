@@ -216,6 +216,7 @@ end)
 -- Parallax and rotation animation function, given a sprite.
 local function fancy_animations(sprite)
 	if PARALLAX_ENABLED then
+		if not sprite.players then return end -- No players, no parallax.
 		local player_position = sprite.players[1].position
 		local planet_position = sprite.target.position
 		local x_offset = (player_position.x - planet_position.x) / PARALLAX_FACTOR
