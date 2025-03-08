@@ -242,14 +242,14 @@ script.on_event(defines.events.on_tick, function(event)
 		if render.animation_progress < 1.0 then
 			local eased = render.animation_progress * (2 - render.animation_progress) -- Fast at low dur, slow at high dur.
 			local scale = PLANET_INIT_SCALE + (planet_scale_diff * eased)
-			for _, sprite in pairs(render.renders) do -- For each player viewing render.
+			for s_index, sprite in pairs(render.renders) do -- For each player viewing render.
 				if sprite.valid then
 					sprite.x_scale = scale
 					sprite.y_scale = scale
 					sprite.target = {x = PLANET_POS_X, y = PLANET_POS_Y - (1 - eased) * PLANET_ARRIVE_DIST}
 					fancy_animations(sprite) -- Animate fancy
 				else
-					render.renders.remove(sprite) -- Remove invalid sprite.
+					table.remove(render.renders, s_index) -- Remove invalid sprite.
 				end
 			end
 			render.animation_progress = render.animation_progress + planet_progress_per_tick
@@ -264,14 +264,14 @@ script.on_event(defines.events.on_tick, function(event)
 		if render.animation_progress > 0.0 then
 			local eased = render.animation_progress * (2 - render.animation_progress) -- Fast at low dur, slow at high dur.
 			local scale = PLANET_INIT_SCALE + (planet_scale_diff * eased)
-			for _, sprite in pairs(render.renders) do -- For each player viewing render.
+			for s_index, sprite in pairs(render.renders) do -- For each player viewing render.
 				if sprite.valid then
 					sprite.x_scale = scale
 					sprite.y_scale = scale
 					sprite.target = {x = PLANET_POS_X, y = PLANET_POS_Y + (1 - eased) * PLANET_DEPART_DIST + render.depart_y_offset} -- Offset often 0.
 					fancy_animations(sprite) -- Animate fancy
 				else
-					render.renders.remove(sprite) -- Remove invalid sprite.
+					table.remove(render.renders, s_index) -- Remove invalid sprite.
 				end
 			end
 			render.animation_progress = render.animation_progress - planet_progress_per_tick
@@ -285,11 +285,11 @@ script.on_event(defines.events.on_tick, function(event)
 
 	-- Standing animation
 	for _, render in pairs(storage.visible_planets_renders_still) do
-		for _, sprite in pairs(render.renders) do -- For each player viewing render.
+		for s_index, sprite in pairs(render.renders) do -- For each player viewing render.
 			if sprite.valid then
 				fancy_animations(sprite) -- Animate fancy
 			else
-				render.renders.remove(sprite) -- Remove invalid sprite.
+				table.remove(render.renders, s_index) -- Remove invalid sprite.
 			end
 		end
 	end
