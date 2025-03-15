@@ -29,6 +29,10 @@ local function create_planet_sprite_prototype(planet)
         log("Skipping visible-planets for " .. planet.name .. "; Starmap icon missing.")
         return
     end
+    if not icon_size then
+        log("Skipping visible-planets for " .. planet.name .. "; Starmap icon size missing.")
+        return
+    end
     -- Create SpritePrototype
     log("Adding visible-planets for " .. planet.name)
     local name = "visible-planets-" .. planet.name
