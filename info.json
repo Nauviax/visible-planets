@@ -1,6 +1,6 @@
 {
   "name": "visible-planets",
-  "version": "1.4.6",
+  "version": "1.4.7",
   "title": "Visible Planets in Space",
   "author": "Nauviax",
   "description": "Render the local planet behind platforms when in orbit. Now with parallax, rotation, and automatic mod support!",
@@ -9,5 +9,6 @@
     "base >= 2.0",
     "space-age >= 2.0",
     "?PlanetsLib >= 1.1.27"
-  ]
+  ],
+  "space_travel_required": true
 }
