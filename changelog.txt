@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.4.8
+Date: 2025.04.15
+  Changes:
+    - Fixed a crash when removing planet mods while platforms were orbiting the removed planets.
+    - (Small side effect of this fix, removing any mod will cause the planet renders to play the ariving animation again. Harmless but worth noting.)
+---------------------------------------------------------------------------------------------------
 Version: 1.4.7
 Date: 2025.04.06
   Changes:

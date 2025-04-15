@@ -36,23 +36,28 @@ script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
 
 	-- If regen renders is set true, then clear and regen all planet renders, and set setting to false.
 	if settings.global["visible-planets-regen-renders"].value then
-		for _, render in pairs(storage.visible_planets_renders_still) do
-			for _, sprite in pairs(render.renders) do sprite.destroy() end end
-		for _, render in pairs(storage.visible_planets_renders_grow) do
-			for _, sprite in pairs(render.renders) do sprite.destroy() end end
-		for _, render in pairs(storage.visible_planets_renders_shrink) do
-			for _, sprite in pairs(render.renders) do sprite.destroy() end end
-		storage.visible_planets_renders_still = {}
-		storage.visible_planets_renders_grow = {}
-		storage.visible_planets_renders_shrink = {}
-		for _, surface in pairs(game.surfaces) do
-			if surface.platform then
-				vp_render_planet_on_platform(surface.platform)
-			end
-		end
+		vp_regenerate_all_renders()
 		settings.global["visible-planets-regen-renders"] = {value = false}
 	end
 end)
+
+-- Delete and regenerate all renders.
+function vp_regenerate_all_renders()
+	for _, render in pairs(storage.visible_planets_renders_still) do
+		for _, sprite in pairs(render.renders) do sprite.destroy() end end
+	for _, render in pairs(storage.visible_planets_renders_grow) do
+		for _, sprite in pairs(render.renders) do sprite.destroy() end end
+	for _, render in pairs(storage.visible_planets_renders_shrink) do
+		for _, sprite in pairs(render.renders) do sprite.destroy() end end
+	storage.visible_planets_renders_still = {}
+	storage.visible_planets_renders_grow = {}
+	storage.visible_planets_renders_shrink = {}
+	for _, surface in pairs(game.surfaces) do
+		if surface.platform then
+			vp_render_planet_on_platform(surface.platform)
+		end
+	end
+end
 
 -- On init, create a table to store the renders of the planets in the background.
 script.on_init(function()
@@ -291,6 +296,17 @@ script.on_event(defines.events.on_tick, function(event)
 			else
 				table.remove(render.renders, s_index) -- Remove invalid sprite.
 			end
+		end
+	end
+end)
+
+-- Quick fix to prevent crashes when a planet mod is removed and the player has a platform orbiting it.
+script.on_configuration_changed(function(event)
+	-- If any mod is removed, then vp_regenerate_all_renders()
+	for _, mod in pairs(event.mod_changes) do
+		if mod.new_version == nil then
+			vp_regenerate_all_renders()
+			break
 		end
 	end
 end)
