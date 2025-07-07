@@ -144,7 +144,7 @@ data:extend({
         type = "bool-setting",
         name = "visible-planets-enable-blur",
         setting_type = "startup",
-        default_value = true,
         order = "b[planetslib]-e"
+        default_value = false,
     }
 })
