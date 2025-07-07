@@ -19,7 +19,7 @@ data:extend({
         type = "double-setting",
         name = "visible-planets-planet-scale",
         setting_type = "runtime-global",
-        default_value = 6.0,
+        default_value = 18,
         minimum_value = 0.0,
         order = "b[sprite]-b"
     },
