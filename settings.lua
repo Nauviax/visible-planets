@@ -146,5 +146,12 @@ data:extend({
         setting_type = "startup",
         default_value = false,
         order = "b[planetslib]-f"
+    },
+    {
+        type = "double-setting",
+        name = "visible-planets-blur-intensity",
+        setting_type = "startup",
+        default_value = 1,
+        order = "b[planetslib]-g"
     }
 })

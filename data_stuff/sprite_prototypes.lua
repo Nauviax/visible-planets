@@ -100,10 +100,11 @@ local function create_planet_sprite_prototype(planet)
     if settings.startup["visible-planets-enable-blur"].value == true then
         --Apply blur effect to planet by layering many nearly-transparent copies of sprites shifted slightly from primary sprites.
         --TODO: Add settings to modify blur intensity that aren't difficult to understand.
+        local blurriness = settings.startup["visible-planets-blur-intensity"].value --Relative blurriness
         local blur_count = 8
-        local blur_shift_max = 0.25
-        local blur_shift_start = 0.05
-        local blur_shift_steps= 0.05
+        local blur_shift_max = 0.25 * blurriness
+        local blur_shift_start = 0.05 * blurriness
+        local blur_shift_steps= 0.05 * blurriness
         local brightness_modifier = 1
         local sprites_list = table.deepcopy(sprite_prototype.layers)
         sprite_prototype.layers = {}
