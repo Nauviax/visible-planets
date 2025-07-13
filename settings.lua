@@ -145,13 +145,14 @@ data:extend({
         name = "visible-planets-enable-blur",
         setting_type = "startup",
         default_value = false,
-        order = "b[planetslib]-f"
+        order = "c[blue]-a"
     },
     {
         type = "double-setting",
         name = "visible-planets-blur-intensity",
         setting_type = "startup",
         default_value = 1,
-        order = "b[planetslib]-g"
+        minimum_value = 0.01,
+        order = "c[blur]-b"
     }
 })

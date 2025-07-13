@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.5.0
+Date: 2025.07.25
+  Changes:
+    - Added new configurable blur effect, disabled by default. (Thanks to MeteorStorm/nicholasgower!)
+    - Fixed some typos
+---------------------------------------------------------------------------------------------------
 Version: 1.4.8
 Date: 2025.04.15
   Changes:

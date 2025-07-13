@@ -86,7 +86,7 @@ local function create_planet_sprite_prototype(planet)
         local num_children = #sprite_prototype.layers
         local shift_x = planetslib_x -- Initial shift, top left corner.
         local shift_y = planetslib_y
-        for _,child in pairs(sprite_prototype.layers) do -- Rotate background bodies about main body.
+        for _, child in pairs(sprite_prototype.layers) do -- Rotate background bodies about main body.
             child.shift = {shift_x, shift_y}
             local shift_x_old = shift_x
             shift_x = (shift_x_old * math.cos(math.pi/num_children)) - (shift_y * math.sin(math.pi/num_children))
@@ -99,28 +99,27 @@ local function create_planet_sprite_prototype(planet)
 
     if settings.startup["visible-planets-enable-blur"].value == true then
         --Apply blur effect to planet by layering many nearly-transparent copies of sprites shifted slightly from primary sprites.
-        --TODO: Add settings to modify blur intensity that aren't difficult to understand.
         local blurriness = settings.startup["visible-planets-blur-intensity"].value --Relative blurriness
         local blur_count = 8
         local blur_shift_max = 0.25 * blurriness
         local blur_shift_start = 0.05 * blurriness
-        local blur_shift_steps= 0.05 * blurriness
+        local blur_shift_steps = 0.05 * blurriness
         local brightness_modifier = 1
         local sprites_list = table.deepcopy(sprite_prototype.layers)
         sprite_prototype.layers = {}
         --local shift_x = blur_shift -- Initial shift, top left corner.
         --local shift_y = blur_shift
-        for _,entry in pairs(sprites_list) do
+        for _, entry in pairs(sprites_list) do
             local copy = table.deepcopy(entry)
-            copy.tint = {0,0,0} --black mask to ensure that none of the sprite is transparent where it shouldn't be
-            table.insert(sprite_prototype.layers,copy)
+            copy.tint = {0, 0, 0} --black mask to ensure that none of the sprite is transparent where it shouldn't be
+            table.insert(sprite_prototype.layers, copy)
         end
-        local n = blur_count*(1+(blur_shift_max-blur_shift_start)/blur_shift_steps)
-        for i = 1,blur_count do
-            for blur_shift = blur_shift_start,blur_shift_max,blur_shift_steps do
-                local shift_x = blur_shift * math.cos(i*2*math.pi/blur_count)
-                local shift_y = blur_shift * math.sin(i*2*math.pi/blur_count)
-                for _,child_original in pairs(sprites_list) do -- Rotate background bodies about main body.
+        local nn = blur_count * (1 + (blur_shift_max - blur_shift_start) / blur_shift_steps)
+        for ii = 1, blur_count do
+            for blur_shift = blur_shift_start, blur_shift_max, blur_shift_steps do
+                local shift_x = blur_shift * math.cos(ii * 2 *math.pi / blur_count)
+                local shift_y = blur_shift * math.sin(ii * 2 * math.pi / blur_count)
+                for _, child_original in pairs(sprites_list) do -- Rotate background bodies about main body.
                     local child = table.deepcopy(child_original)
                     if child.shift then
                         if not child.shift[1] then
@@ -136,18 +135,13 @@ local function create_planet_sprite_prototype(planet)
                     else
                         child.shift = {shift_x, shift_y}
                     end
-                        --assert(1/n > 0.01, "".. tostring(1/n))
-                        child.tint = {brightness_modifier/n,brightness_modifier/n,brightness_modifier/n,brightness_modifier/n}
-                        child.blend_mode = "multiplicative-with-alpha"
-                        table.insert(sprite_prototype.layers,child)
-                        
-                    end
+                    child.tint = {brightness_modifier/nn, brightness_modifier/nn, brightness_modifier/nn, brightness_modifier/nn}
+                    child.blend_mode = "multiplicative-with-alpha"
+                    table.insert(sprite_prototype.layers, child)
+                end
             end
-            
         end
     end
-    
-
     data:extend{sprite_prototype}
 end
 
