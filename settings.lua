@@ -139,5 +139,19 @@ data:extend({
         minimum_value = 0,
         maximum_value = 1,
         order = "b[planetslib]-e"
+    },
+    {
+        type = "bool-setting",
+        name = "visible-planets-enable-blur",
+        setting_type = "startup",
+        default_value = false,
+        order = "b[planetslib]-f"
+    },
+    {
+        type = "double-setting",
+        name = "visible-planets-blur-intensity",
+        setting_type = "startup",
+        default_value = 1,
+        order = "b[planetslib]-g"
     }
 })
