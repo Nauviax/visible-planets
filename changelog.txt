@@ -2,7 +2,7 @@
 Version: 1.5.3
 Date: 2025.08.19
   Changes:
-    - Updated German (de) locale. (Thanks to Astorin again!)
+    - Updated German (de) locale. (Thanks to Ingo_Igel!)
 ---------------------------------------------------------------------------------------------------
 Version: 1.5.2
 Date: 2025.08.12
