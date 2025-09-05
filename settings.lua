@@ -70,12 +70,19 @@ data:extend({
         order = "c[parallax]-a"
     },
     {
+        type = "bool-setting",
+        name = "visible-planets-disable-mp-parallax",
+        setting_type = "runtime-global",
+        default_value = true,
+        order = "c[parallax]-b"
+    },
+    {
         type = "double-setting",
         name = "visible-planets-parallax-factor",
         setting_type = "runtime-global",
         default_value = 3,
         minimum_value = 0.1,
-        order = "c[parallax]-b"
+        order = "c[parallax]-c"
     },
     {
         type = "bool-setting",

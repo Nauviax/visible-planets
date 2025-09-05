@@ -13,6 +13,7 @@ local planet_scale_diff = PLANET_SCALE - PLANET_INIT_SCALE -- Used in animation.
 
 -- Parallax and rotation configs
 local PARALLAX_ENABLED = settings.global["visible-planets-enable-parallax"].value
+local PARALLAX_MP_DISABLED = settings.global["visible-planets-disable-mp-parallax"].value
 local PARALLAX_FACTOR = settings.global["visible-planets-parallax-factor"].value
 local ROTATION_ENABLED = settings.global["visible-planets-enable-rotation"].value
 local ROTATION_SPEED = settings.global["visible-planets-rotation-speed"].value / 360.0 -- % rotation per tick. Value is degrees.
@@ -29,6 +30,7 @@ script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
 	PLANET_ANGLE = settings.global["visible-planets-planet-angle"].value / 360.0
 	planet_progress_per_tick = 1.0 / PLANET_ANIM_DUR
 	PARALLAX_ENABLED = settings.global["visible-planets-enable-parallax"].value -- If disabled midgame, only existing planets will be left offset. New ones should be fine.
+	PARALLAX_MP_DISABLED = settings.global["visible-planets-disable-mp-parallax"].value
 	PARALLAX_FACTOR = settings.global["visible-planets-parallax-factor"].value
 	ROTATION_ENABLED = settings.global["visible-planets-enable-rotation"].value
 	ROTATION_SPEED = settings.global["visible-planets-rotation-speed"].value / 360.0
@@ -88,7 +90,6 @@ function vp_render_planet_on_platform(platform)
 					local render = storage.visible_planets_renders_grow[platform.index]
 					local eased = render.animation_progress * (2 - render.animation_progress)
 					render.depart_y_offset = (1 + PLANET_DEPART_DIST_MULT) * ((PLANET_POS_Y - (1 - eased) * PLANET_ARRIVE_DIST) - PLANET_POS_Y) -- Offset departure animation to remove jump. Should be negative.
-					-- !!! TEST ABOVE LINE
 					storage.visible_planets_renders_shrink[platform.index] = render
 				end
 				-- Remove from other lists. Can delete two planets technically.
@@ -220,13 +221,15 @@ end)
 
 -- Parallax and rotation animation function, given a sprite.
 local function fancy_animations(sprite)
+	if not sprite.players then return end -- No players, no animation.
 	if PARALLAX_ENABLED then
-		if not sprite.players then return end -- No players, no parallax.
-		local player_position = sprite.players[1].position
-		local planet_position = sprite.target.position
-		local x_offset = (player_position.x - planet_position.x) / PARALLAX_FACTOR
-		local y_offset = (player_position.y - planet_position.y) / PARALLAX_FACTOR
-		sprite.oriented_offset = {x_offset, y_offset} -- Will not affect literal position.
+		if not (PARALLAX_MP_DISABLED and game.is_multiplayer()) then
+			local player_position = sprite.players[1].position
+			local planet_position = sprite.target.position
+			local x_offset = (player_position.x - planet_position.x) / PARALLAX_FACTOR
+			local y_offset = (player_position.y - planet_position.y) / PARALLAX_FACTOR
+			sprite.oriented_offset = {x_offset, y_offset} -- Will not affect literal position.
+		end
 	end
 	if ROTATION_ENABLED then
 		local new_ang = sprite.orientation + ROTATION_SPEED

@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.5.4
+Date: 2025.09.05
+  Changes:
+    - Added option to disable parallax in multiplayer games for players other than the host. (New default behaviour)
+---------------------------------------------------------------------------------------------------
 Version: 1.5.3
 Date: 2025.08.19
   Changes:
