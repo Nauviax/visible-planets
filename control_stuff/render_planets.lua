@@ -147,7 +147,7 @@ function vp_generate_sprite_for_player(player, render, generate_hidden)
 		surface = render.surface,
 		render_layer = "zero",
 		target = {PLANET_POS_X, PLANET_POS_Y},
-		orientation = PLANET_ANGLE,
+		orientation = (PLANET_ANGLE + (game.tick * ROTATION_SPEED)) % 1, -- Initial orientation plus rotation over time.
 		x_scale = PLANET_SCALE,
 		y_scale = PLANET_SCALE,
 		orientation_target = {PLANET_POS_X, -99999}, -- Pointing up
