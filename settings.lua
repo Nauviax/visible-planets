@@ -126,17 +126,24 @@ data:extend({
     },
     {
         type = "double-setting",
-        name = "visible-planets-planetslib-x",
+        name = "visible-planets-planetslib-dist",
         setting_type = "startup",
-        default_value = -7.5,
+        default_value = 10,
         order = "b[planetslib]-c"
     },
     {
         type = "double-setting",
-        name = "visible-planets-planetslib-y",
+        name = "visible-planets-planetslib-init-angle",
         setting_type = "startup",
-        default_value = -7.5,
+        default_value = 0,
         order = "b[planetslib]-d"
+    },
+    {
+        type = "double-setting",
+        name = "visible-planets-planetslib-spacing-mult",
+        setting_type = "startup",
+        default_value = 1,
+        order = "b[planetslib]-e"
     },
     {
         type = "double-setting",
@@ -145,7 +152,7 @@ data:extend({
         default_value = 0.5,
         minimum_value = 0,
         maximum_value = 1,
-        order = "b[planetslib]-e"
+        order = "b[planetslib]-f"
     },
     {
         type = "bool-setting",

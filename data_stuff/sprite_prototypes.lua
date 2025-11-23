@@ -3,8 +3,9 @@ local sprite_goal_size = 512 -- Sprites that have a different size will be scale
 local use_blacklist = not settings.startup["visible-planets-override-show-planets"].value -- If true, override and *DON'T* use blacklist. I got it backwards.
 local use_planetslib_compat = settings.startup["visible-planets-planetslib-compat"].value -- If true, add PlanetsLib layers to planets and moons.
 local planetslib_scale = settings.startup["visible-planets-planetslib-scale"].value
-local planetslib_x = settings.startup["visible-planets-planetslib-x"].value
-local planetslib_y = settings.startup["visible-planets-planetslib-y"].value
+local planetslib_dist = settings.startup["visible-planets-planetslib-dist"].value
+local planetslib_init_angle = settings.startup["visible-planets-planetslib-init-angle"].value / 180 * math.pi -- Convert degrees to radians
+local planetslib_spacing_mult = settings.startup["visible-planets-planetslib-spacing-mult"].value
 local planetslib_tint = settings.startup["visible-planets-planetslib-tint"].value
 
 -- Create SpritePrototype for each planet
@@ -83,14 +84,11 @@ local function create_planet_sprite_prototype(planet)
             end
         end
         -- Arrange bodies around main body.
-        local num_children = #sprite_prototype.layers
-        local shift_x = planetslib_x -- Initial shift, top left corner.
-        local shift_y = planetslib_y
+        local angle_step = (2 * math.pi) * planetslib_spacing_mult / #sprite_prototype.layers -- Angle between each child
+        local current_angle = planetslib_init_angle + 0 -- Force number type
         for _, child in pairs(sprite_prototype.layers) do -- Rotate background bodies about main body.
-            child.shift = {shift_x, shift_y}
-            local shift_x_old = shift_x
-            shift_x = (shift_x_old * math.cos(math.pi/num_children)) - (shift_y * math.sin(math.pi/num_children))
-            shift_y = (shift_x_old * math.sin(math.pi/num_children)) - (shift_y * math.cos(math.pi/num_children))
+            child.shift = {planetslib_dist * math.cos(current_angle), planetslib_dist * math.sin(current_angle)}
+            current_angle = current_angle + angle_step
         end
     end
 
