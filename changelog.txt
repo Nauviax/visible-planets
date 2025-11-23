@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 Version: 1.6.0
-Date: 2025.11.22
+Date: 2025.11.23
   Changes:
     - Planets with 3 or more moons now correctly render all moons in the background. (Old formula was just wrong, but never noticed it lol)
     - Adjusted settings related to planetslib, more configs available now.
