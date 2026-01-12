@@ -168,5 +168,13 @@ data:extend({
         default_value = 1,
         minimum_value = 0.01,
         order = "c[blur]-b"
+    },
+    { --startup setting for mods to disable planet rotation individually, dont replace value, add planets with separation like "nauvis;arig;test"
+        type = "string-setting",
+        name = "visible-planets-disable-rotation", 
+        setting_type = "startup",
+        default_value = "",
+        allow_blank = true,
+        order = "z"
     }
 })

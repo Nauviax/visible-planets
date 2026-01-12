@@ -18,6 +18,16 @@ local PARALLAX_FACTOR = settings.global["visible-planets-parallax-factor"].value
 local ROTATION_ENABLED = settings.global["visible-planets-enable-rotation"].value
 local ROTATION_SPEED = settings.global["visible-planets-rotation-speed"].value / 360.0 -- % rotation per tick. Value is degrees.
 
+
+local PER_PLANET_ROTATION_ENABLED = true -- extra bool for per planet rotation surface checks
+local disabled_rotation = {} --table cointaining all planets that should not rotate
+local raw = settings.startup["visible-planets-disable-rotation"].value --startup string setting containing planets that should not rotate, separated by ; (mods should add their planets rather than replace the default value)
+if raw ~= "" then
+	for name in string.gmatch(raw, "[^;]+") do
+		disabled_rotation[name] = true
+	end
+end
+
 -- on_runtime_mod_setting_changed, update constants. (Yes this technically gets called for each setting changed, but they all need updating anyway.)
 script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
 	PLANET_POS_X = settings.global["visible-planets-planet-pos-x"].value + 0
@@ -139,6 +149,13 @@ end
 
 -- Generate a new sprite for a given player and render obj. Optionally generate hidden.
 function vp_generate_sprite_for_player(player, render, generate_hidden)
+
+	if disabled_rotation[render.location_name] then --check if surface has planet that should rotate
+		PER_PLANET_ROTATION_ENABLED = false
+	else
+		PER_PLANET_ROTATION_ENABLED = true
+	end
+
 	if render.renders[player.index] then
 		return -- Already exists, don't make another.
 	end
@@ -147,7 +164,7 @@ function vp_generate_sprite_for_player(player, render, generate_hidden)
 		surface = render.surface,
 		render_layer = "zero",
 		target = {PLANET_POS_X, PLANET_POS_Y},
-		orientation = ROTATION_ENABLED and (PLANET_ANGLE + (game.tick * ROTATION_SPEED)) % 1 or PLANET_ANGLE, -- Initial orientation plus rotation over time.
+		orientation = ROTATION_ENABLED and PER_PLANET_ROTATION_ENABLED and (PLANET_ANGLE + (game.tick * ROTATION_SPEED)) % 1 or PLANET_ANGLE, -- Initial orientation plus rotation over time.
 		x_scale = PLANET_SCALE,
 		y_scale = PLANET_SCALE,
 		orientation_target = {PLANET_POS_X, -99999}, -- Pointing up
@@ -231,7 +248,7 @@ local function fancy_animations(sprite)
 			sprite.oriented_offset = {x_offset, y_offset} -- Will not affect literal position.
 		end
 	end
-	if ROTATION_ENABLED then
+	if ROTATION_ENABLED and PER_PLANET_ROTATION_ENABLED then
 		local new_ang = sprite.orientation + ROTATION_SPEED
 		if new_ang >= 1 then
 			new_ang = new_ang - 1
