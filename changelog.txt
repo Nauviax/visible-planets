@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.7.0
+Date: 2026.01.17
+  Changes:
+    - Internal rework of planet overrides; mods can now access the overrides table directly if desired, and overrides can affect runtime logic.
+    - Added vp_disable_planet_rotation() and vp_set_planet_rotation_mult() for other mods to use at data stage.
+---------------------------------------------------------------------------------------------------
 Version: 1.6.1
 Date: 2025.11.24
   Changes:

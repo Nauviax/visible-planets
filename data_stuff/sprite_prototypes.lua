@@ -9,7 +9,7 @@ local planetslib_spacing_mult = settings.startup["visible-planets-planetslib-spa
 local planetslib_tint = settings.startup["visible-planets-planetslib-tint"].value
 
 -- Create SpritePrototype for each planet
-local planet_overrides = vp_get_planet_overrides() -- Defined in separate file
+local planet_overrides = data.raw["mod-data"]["visible-planets-overrides"].data.planets
 local function create_planet_sprite_prototype(planet)
     local icon = planet.starmap_icon
     local icon_size = planet.starmap_icon_size
@@ -144,17 +144,13 @@ local function create_planet_sprite_prototype(planet)
 end
 
 -- Create SpritePrototypes for each planet not in the blacklist
-local planet_blacklist = vp_get_planet_blacklist() -- Defined in separate file
 local function create_for_each(planets)
     for _, planet in pairs(planets) do
-        for _, blacklist in pairs(planet_blacklist) do
-            if use_blacklist and planet.name == blacklist then
-                log("Skipping visible-planets for " .. planet.name .. "; Blacklisted.")
-                goto blacklist_skip -- goto feels so *wrong* though.
-            end
+        if use_blacklist and planet_overrides[planet.name] and planet_overrides[planet.name].enabled == false then
+            log("Skipping visible-planets for " .. planet.name .. "; Blacklisted.")
+        else
+            create_planet_sprite_prototype(planet)
         end
-        create_planet_sprite_prototype(planet)
-        ::blacklist_skip::
     end
 end
 create_for_each(data.raw["planet"])

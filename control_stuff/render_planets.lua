@@ -18,6 +18,9 @@ local PARALLAX_FACTOR = settings.global["visible-planets-parallax-factor"].value
 local ROTATION_ENABLED = settings.global["visible-planets-enable-rotation"].value
 local ROTATION_SPEED = settings.global["visible-planets-rotation-speed"].value / 360.0 -- % rotation per tick. Value is degrees.
 
+-- Planet Overrides
+local PLANET_OVERRIDES = prototypes.mod_data["visible-planets-overrides"].data.planets
+
 -- on_runtime_mod_setting_changed, update constants. (Yes this technically gets called for each setting changed, but they all need updating anyway.)
 script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
 	PLANET_POS_X = settings.global["visible-planets-planet-pos-x"].value + 0
@@ -105,6 +108,7 @@ function vp_render_planet_on_platform(platform)
 					renders = {}, -- Holds each render of the visible planet for each player.
 					surface = platform.surface, -- Used to generate sprite
 					location_name = location.name, -- Used to generate sprite
+					overrides = PLANET_OVERRIDES[location.name] or {} -- Planet specific overrides
 				}
 				for _, player in pairs(game.players) do -- Add all players watching this platform to the render.
 					if player.surface.platform and player.surface.platform.index == platform.index then
@@ -147,7 +151,7 @@ function vp_generate_sprite_for_player(player, render, generate_hidden)
 		surface = render.surface,
 		render_layer = "zero",
 		target = {PLANET_POS_X, PLANET_POS_Y},
-		orientation = ROTATION_ENABLED and (PLANET_ANGLE + (game.tick * ROTATION_SPEED)) % 1 or PLANET_ANGLE, -- Initial orientation plus rotation over time.
+		orientation = ROTATION_ENABLED and (PLANET_ANGLE + (game.tick * ROTATION_SPEED * (render.overrides.rotate_mult or 1))) % 1 or PLANET_ANGLE, -- Initial orientation plus rotation over time.
 		x_scale = PLANET_SCALE,
 		y_scale = PLANET_SCALE,
 		orientation_target = {PLANET_POS_X, -99999}, -- Pointing up
@@ -220,7 +224,7 @@ script.on_event(defines.events.on_pre_surface_deleted, function(event)
 end)
 
 -- Parallax and rotation animation function, given a sprite.
-local function fancy_animations(sprite)
+local function fancy_animations(sprite, overrides)
 	if not sprite.players then return end -- No players, no animation.
 	if PARALLAX_ENABLED then
 		if not (PARALLAX_MP_DISABLED and game.is_multiplayer()) then
@@ -231,8 +235,8 @@ local function fancy_animations(sprite)
 			sprite.oriented_offset = {x_offset, y_offset} -- Will not affect literal position.
 		end
 	end
-	if ROTATION_ENABLED then
-		local new_ang = sprite.orientation + ROTATION_SPEED
+	if ROTATION_ENABLED and not (overrides.rotate == false) then
+		local new_ang = sprite.orientation + (ROTATION_SPEED * (overrides.rotate_mult or 1))
 		if new_ang >= 1 then
 			new_ang = new_ang - 1
 		end
@@ -255,7 +259,7 @@ script.on_event(defines.events.on_tick, function(event)
 					sprite.x_scale = scale
 					sprite.y_scale = scale
 					sprite.target = {x = PLANET_POS_X, y = PLANET_POS_Y - (1 - eased) * PLANET_ARRIVE_DIST}
-					fancy_animations(sprite) -- Animate fancy
+					fancy_animations(sprite, render.overrides) -- Animate fancy
 				else
 					table.remove(render.renders, s_index) -- Remove invalid sprite.
 				end
@@ -277,7 +281,7 @@ script.on_event(defines.events.on_tick, function(event)
 					sprite.x_scale = scale
 					sprite.y_scale = scale
 					sprite.target = {x = PLANET_POS_X, y = PLANET_POS_Y + (1 - eased) * PLANET_DEPART_DIST + render.depart_y_offset} -- Offset often 0.
-					fancy_animations(sprite) -- Animate fancy
+					fancy_animations(sprite, render.overrides) -- Animate fancy
 				else
 					table.remove(render.renders, s_index) -- Remove invalid sprite.
 				end
@@ -295,7 +299,7 @@ script.on_event(defines.events.on_tick, function(event)
 	for _, render in pairs(storage.visible_planets_renders_still) do
 		for s_index, sprite in pairs(render.renders) do -- For each player viewing render.
 			if sprite.valid then
-				fancy_animations(sprite) -- Animate fancy
+				fancy_animations(sprite, render.overrides) -- Animate fancy
 			else
 				table.remove(render.renders, s_index) -- Remove invalid sprite.
 			end
