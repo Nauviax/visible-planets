@@ -68,6 +68,7 @@ local function create_planet_sprite_prototype(planet)
         end
         -- Find all children:
         for _, child in pairs(data.raw["planet"]) do
+            ---@diagnostic disable-next-line: undefined-field
             if child.orbit and child.orbit.parent and child.orbit.parent.type and child.orbit.parent.type == "planet" and child.orbit.parent.name == planet.name then
                 if child.starmap_icon == nil then
                     log("Skipping PlanetsLib compat for " .. planet.name .. " with moon " .. child.name .. "; Moon starmap icon missing.")
