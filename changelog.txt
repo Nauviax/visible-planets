@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.7.2
+Date: 2026.04.18
+  Changes:
+    - Updated Polish (pl) locale. (Thanks to Hacai666!)
+    - I have a Discord server now by the way! See the mod page for a link.
+---------------------------------------------------------------------------------------------------
 Version: 1.7.1
 Date: 2026.01.30
   Changes:
