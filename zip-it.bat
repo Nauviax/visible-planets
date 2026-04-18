@@ -1,0 +1,2 @@
+for %%I in (.) do set "NAME=%%~nI"
+powershell -Command "Compress-Archive -Path (Get-ChildItem -Force | Where-Object { $_.Name -ne '.git' -and $_.Name -ne 'zip-it.bat' }) -DestinationPath '%USERPROFILE%\Downloads\%NAME%.zip' -Force"
