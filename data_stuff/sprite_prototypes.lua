@@ -8,6 +8,11 @@ local planetslib_init_angle = settings.startup["visible-planets-planetslib-init-
 local planetslib_spacing_mult = settings.startup["visible-planets-planetslib-spacing-mult"].value
 local planetslib_tint = settings.startup["visible-planets-planetslib-tint"].value
 
+-- Disable 2.1 visible planets implementation (This is a temporary patch for 2.1!)
+for _, planet in pairs(data.raw["planet"]) do
+    planet.platform_surface_render_parameters.platform_backdrop = nil
+end
+
 -- Create SpritePrototype for each planet
 local planet_overrides = data.raw["mod-data"]["visible-planets-overrides"].data.planets
 local function create_planet_sprite_prototype(planet)

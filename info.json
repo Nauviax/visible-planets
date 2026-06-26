@@ -1,14 +1,14 @@
 {
   "name": "visible-planets",
-  "version": "1.7.2",
+  "version": "1.8.0",
   "title": "Visible Planets in Space",
   "author": "Nauviax",
   "description": "Render the local planet behind platforms when in orbit. Now with parallax, rotation, and automatic mod support!",
-  "factorio_version": "2.0",
+  "factorio_version": "2.1",
   "dependencies": [
-    "base >= 2.0",
-    "space-age >= 2.0",
-    "?PlanetsLib >= 1.1.27"
+    "base >= 2.1",
+    "space-age >= 2.1",
+    "?PlanetsLib >= 1.19.0"
   ],
   "space_travel_required": true
 }
