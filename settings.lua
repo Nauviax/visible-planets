@@ -103,17 +103,24 @@ data:extend({
     -- Startup settings
     {
         type = "bool-setting",
+        name = "visible-planets-vanilla-compat",
+        setting_type = "startup",
+        default_value = false,
+        order = "a[vanilla]-a"
+    },
+    {
+        type = "bool-setting",
         name = "visible-planets-override-show-planets",
         setting_type = "startup",
         default_value = false,
-        order = "a[general]-a"
+        order = "b[general]-a"
     },
     {
         type = "bool-setting",
         name = "visible-planets-planetslib-compat",
         setting_type = "startup",
         default_value = true,
-        order = "b[planetslib]-a"
+        order = "c[planetslib]-a"
     },
     {
         type = "double-setting",
@@ -122,28 +129,28 @@ data:extend({
         default_value = 0.2,
         minimum_value = 0,
         maximum_value = 10,
-        order = "b[planetslib]-b"
+        order = "c[planetslib]-b"
     },
     {
         type = "double-setting",
         name = "visible-planets-planetslib-dist",
         setting_type = "startup",
         default_value = 10,
-        order = "b[planetslib]-c"
+        order = "c[planetslib]-c"
     },
     {
         type = "double-setting",
         name = "visible-planets-planetslib-init-angle",
         setting_type = "startup",
         default_value = 0,
-        order = "b[planetslib]-d"
+        order = "c[planetslib]-d"
     },
     {
         type = "double-setting",
         name = "visible-planets-planetslib-spacing-mult",
         setting_type = "startup",
         default_value = 1,
-        order = "b[planetslib]-e"
+        order = "c[planetslib]-e"
     },
     {
         type = "double-setting",
@@ -152,14 +159,14 @@ data:extend({
         default_value = 0.5,
         minimum_value = 0,
         maximum_value = 1,
-        order = "b[planetslib]-f"
+        order = "c[planetslib]-f"
     },
     {
         type = "bool-setting",
         name = "visible-planets-enable-blur",
         setting_type = "startup",
         default_value = false,
-        order = "c[blue]-a"
+        order = "d[blur]-a"
     },
     {
         type = "double-setting",
@@ -167,6 +174,6 @@ data:extend({
         setting_type = "startup",
         default_value = 1,
         minimum_value = 0.01,
-        order = "c[blur]-b"
+        order = "d[blur]-b"
     }
 })

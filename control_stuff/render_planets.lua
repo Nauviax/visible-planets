@@ -20,6 +20,7 @@ local ROTATION_SPEED = settings.global["visible-planets-rotation-speed"].value /
 
 -- Planet Overrides
 local PLANET_OVERRIDES = prototypes.mod_data["visible-planets-overrides"].data.planets
+local USE_BLACKLIST = not settings.startup["visible-planets-override-show-planets"].value -- If setting is true, override and *DON'T* use blacklist. I got it backwards.
 
 -- on_runtime_mod_setting_changed, update constants. (Yes this technically gets called for each setting changed, but they all need updating anyway.)
 script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
@@ -128,6 +129,11 @@ end)
 -- Generate a render for a given player on their watched platform, if it doesn't already exist.
 function vp_add_player_to_watched_render(player)
 	if player.surface.platform then -- Check each state a render can exist, add player if so.
+		local location = player.surface.platform.space_location and player.surface.platform.space_location.name
+		local override = location and USE_BLACKLIST and PLANET_OVERRIDES[location] -- May be nil if no override
+		if override and override.enabled == false then
+			return -- Planet is blacklisted, or disabled due to vanilla compat. Nothing to render.
+		end
 		local p_index = player.surface.platform.index
 		if storage.visible_planets_renders_still[p_index] then
 			vp_generate_sprite_for_player(player, storage.visible_planets_renders_still[p_index], false)

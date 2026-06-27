@@ -1,6 +1,6 @@
 -- Constants
 local sprite_goal_size = 512 -- Sprites that have a different size will be scaled to this size.
-local use_blacklist = not settings.startup["visible-planets-override-show-planets"].value -- If true, override and *DON'T* use blacklist. I got it backwards.
+local use_blacklist = not settings.startup["visible-planets-override-show-planets"].value -- If setting is true, override and *DON'T* use blacklist. I got it backwards.
 local use_planetslib_compat = settings.startup["visible-planets-planetslib-compat"].value -- If true, add PlanetsLib layers to planets and moons.
 local planetslib_scale = settings.startup["visible-planets-planetslib-scale"].value
 local planetslib_dist = settings.startup["visible-planets-planetslib-dist"].value
@@ -8,13 +8,21 @@ local planetslib_init_angle = settings.startup["visible-planets-planetslib-init-
 local planetslib_spacing_mult = settings.startup["visible-planets-planetslib-spacing-mult"].value
 local planetslib_tint = settings.startup["visible-planets-planetslib-tint"].value
 
--- Disable 2.1 visible planets implementation (This is a temporary patch for 2.1!)
+-- Load overrides
+local planet_overrides = data.raw["mod-data"]["visible-planets-overrides"].data.planets
+
+-- Disable 2.1 visible planets implementation (If vanilla compat is disabled)
 for _, planet in pairs(data.raw["planet"]) do
-    planet.platform_surface_render_parameters.platform_backdrop = nil
+    if planet.platform_surface_render_parameters then
+        if settings.startup["visible-planets-vanilla-compat"].value then
+            planet_overrides[planet.name].enabled = false -- Skip VP, use vanilla for this planet.
+        else
+            planet.platform_surface_render_parameters.platform_backdrop = nil -- Remove vanilla backdrop
+        end
+    end
 end
 
 -- Create SpritePrototype for each planet
-local planet_overrides = data.raw["mod-data"]["visible-planets-overrides"].data.planets
 local function create_planet_sprite_prototype(planet)
     local icon = planet.starmap_icon
     local icon_size = planet.starmap_icon_size
