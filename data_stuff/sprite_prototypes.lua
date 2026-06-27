@@ -15,6 +15,7 @@ local planet_overrides = data.raw["mod-data"]["visible-planets-overrides"].data.
 for _, planet in pairs(data.raw["planet"]) do
     if planet.platform_surface_render_parameters then
         if settings.startup["visible-planets-vanilla-compat"].value then
+            planet_overrides[planet.name] = planet_overrides[planet.name] or {} -- Ensure table exists
             planet_overrides[planet.name].enabled = false -- Skip VP, use vanilla for this planet.
         else
             planet.platform_surface_render_parameters.platform_backdrop = nil -- Remove vanilla backdrop

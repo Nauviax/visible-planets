@@ -1,9 +1,15 @@
 ---------------------------------------------------------------------------------------------------
-Version: 1.8.1
+Version: 1.8.2
 Date: 2026.06.27
   Changes:
     - Fixed crash on load when using certain modded planets.
     - Added startup config to keep vanilla planet backdrops when available, and only use VP for modded planets that haven't set up a vanilla backdrop yet.
+---------------------------------------------------------------------------------------------------
+Version: 1.8.1
+Date: 2026.06.27
+  Changes:
+    - This version never existed. It 100% did not crash on load.
+    - (Apologies if you updated in the 5 minute window this version was uploaded)
 ---------------------------------------------------------------------------------------------------
 Version: 1.8.0
 Date: 2026.06.26
